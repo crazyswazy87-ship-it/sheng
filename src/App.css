@@ -58,11 +58,9 @@ body{
   transform:translateX(-50%);
   width:min(900px,95%);
   z-index:50;
-  border: none;
-
   backdrop-filter:blur(10px);
 
-  border:1px solid var(--wabling);
+  border:0.01rem solid var(--wabling);
 
   border-radius:26px;
 
@@ -114,7 +112,7 @@ body{
     gap:5px;
     padding: 4px 4px;
 
-    cursor:pointer;
+    cursor: all-scroll;
 
     transition:.35s;
 }
@@ -844,6 +842,15 @@ body{
 {
   display: flex;
   flex-direction: row;
+  text-align: center;
+}
+
+.smm 
+{
+  font-size: 10px;
+  margin-left: 5px;
+  margin-top: 6px;
+  letter-spacing: 0.9px;
 }
 
 .shengz
@@ -1414,4 +1421,59 @@ color: rgb(0, 255, 0);;
   color: #fff;
   font-weight: 600;
   transform: scale(1.2);
+}
+
+
+.b1x{
+  background-color: black;
+  height: 30px;
+  width: 100px;
+  display: grid;
+  justify-self: center;
+  align-self: center;
+  align-items: center;
+  justify-content: space-around;
+  margin-top: 10px;
+  cursor: pointer;
+  border-radius: 15px;
+  color: #fff;
+  font-size: 17px;
+  position:relative;
+}
+
+
+
+@property --angle{
+  syntax: "<angle>"; 
+  initial-value:0deg;
+  inherits:false ;
+
+}
+
+.b1x::after, .b1x::before{
+  content: '';
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  background-image: conic-gradient(from var(--angle), #fff, black,white,red,white,lightgreen,#fff, black,white,red,white,lightgreen );
+  top: 50%;
+  left: 50%;
+  translate: -50% -50% ;
+  z-index: -1;
+  padding: 3px;
+  border-radius: 30px;
+  animation: 4s spin linear infinite;
+}
+
+.b1x::before{
+  filter: blur(1.3rem);
+  opacity: 0.5;
+}
+@keyframes spin{
+  from{
+    --angle:0deg;
+  }
+  to{
+    --angle:360deg;
+  }
 }

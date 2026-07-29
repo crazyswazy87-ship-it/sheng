@@ -172,16 +172,15 @@ const categories = [
   { id: "order", icon: "📋", label: "Order" },
   { id: "time", icon: "⏰", label: "Time" },
   { id: "media", icon: "📺", label: "Media" },
-  { id: "appearance", icon: "", label: "Appearance" },
-  { id: "work", icon: "", label: "Work" },
-  { id: "animals", icon: "", label: "Animals" },
-  { id: "materials", icon: "", label: "Materials" },
-  { id: "utitlities", icon: "", label: "Utilities" },
-  { id: "household", icon: "", label: "Household" },
-  { id: "enviroment", icon: "", label: "Enviroment" },
-  { id: "accessories", icon: "", label: "Accessories" },
-  
-
+  { id: "appearance", icon: "🪞", label: "Appearance" },
+  { id: "work", icon: "💼", label: "Work" },
+  { id: "animals", icon: "🐾", label: "Animals" },
+  { id: "materials", icon: "🧱", label: "Materials" },
+  { id: "utitlities", icon: "🛠️", label: "Utilities" },
+  { id: "household", icon: "🛋️", label: "Household" },
+  { id: "enviroment", icon: "🌍", label: "Enviroment" },
+  { id: "accessories", icon: "👜", label: "Accessories" },
+  { id: "electronics", icon: "💻", label: "Electronics" },
 ];
 
 const [activeCategory, setActiveCategory] = useState("all");
@@ -218,19 +217,31 @@ const [activeCategory, setActiveCategory] = useState("all");
 
           
           <Shuffle
-            text="Meet Sheng AI"
+            text="Meet"
             className="tit"
             shuffleDirection="right"
             duration={0.25}
           />
+
+          <button className="b1x">
+            <div className="angel">
+              <div className="io">S</div>
+              <div className="oi">H</div>
+              <div className="oo">E</div>
+              <div className="ii">N</div>
+              <div className="ioi">G</div>
+              <div className="smm">AI</div>
+            </div>
+          </button>
           
 
            <ShinyText
               text="Your AI companion for decoding Kenya's fastest changing language"
               className="ans"
-              speed={1}
+              speed={1.5}
               shineColor="#fff"
             />
+
   
         </div>
       ) : (
