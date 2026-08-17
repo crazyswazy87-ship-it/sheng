@@ -3,6 +3,7 @@ import { gsap } from 'gsap';
 import { Link } from 'react-router-dom';
 import ScrollStack, { ScrollStackItem } from './ScrollStack';
 import ShinyText from './ShinyText';
+import kanairo from "../../public/assets/images/ngori-1.png"
 
 import shengz from '../../public/assets/images/sheng-trs.png'
 import Shuffle from './Shuffle';
@@ -526,7 +527,7 @@ export const StaggeredMenu: React.FC<StaggeredMenuProps> = ({
               </ScrollStackItem>
 
               <ScrollStackItem itemClassName="trump">
-              <section id="about" className="trump">
+              <section id="about" className="trumpino">
                 <img 
                   src={shengz}
                   alt="sheng"
@@ -548,7 +549,15 @@ export const StaggeredMenu: React.FC<StaggeredMenuProps> = ({
                   className="poli"
                   >Powered by BlockSeven</Link>
               </section>
+              <div className='arome'>
+                <img 
+                  src={kanairo}
+                  alt='kanairo'
+                  className='arome'
+                />
+              </div>
               </ScrollStackItem>
+
             </ScrollStack>
           </div>
 

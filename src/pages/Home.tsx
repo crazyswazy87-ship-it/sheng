@@ -140,9 +140,8 @@ const Home = () => {
 
     setQuery("");
   };
-
 const categories = [
-  { id: "all", icon: "✨", label: "All" },
+  { id: "all", icon: "🌐", label: "All" },
   { id: "nature", icon: "🌿", label: "Nature" },
   { id: "actions", icon: "🏃", label: "Actions" },
   { id: "emotions", icon: "😊", label: "Emotions" },
@@ -178,9 +177,14 @@ const categories = [
   { id: "materials", icon: "🧱", label: "Materials" },
   { id: "utitlities", icon: "🛠️", label: "Utilities" },
   { id: "household", icon: "🛋️", label: "Household" },
-  { id: "enviroment", icon: "🌍", label: "Enviroment" },
+  { id: "enviroment", icon: "🌍", label: "Environment" },
   { id: "accessories", icon: "👜", label: "Accessories" },
   { id: "electronics", icon: "💻", label: "Electronics" },
+  { id: "sports", icon: "⚽", label: "Sports" },
+  { id: "life", icon: "🌱", label: "Life" },
+  { id: "insults", icon: "😤", label: "Insults" },
+  { id: "greetings", icon: "👋", label: "Greetings" },
+  { id: "compliments", icon: "🌟", label: "Compliments" },
 ];
 
 const [activeCategory, setActiveCategory] = useState("all");

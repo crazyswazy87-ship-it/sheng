@@ -514,6 +514,7 @@ body{
   margin: 0;
   background-color: var(--wablingkibla);
   width: 80%;
+  scroll-behavior: smooth;
   padding: 5px 10px;
   border-radius: 20px;
   align-self: center;
@@ -521,7 +522,7 @@ body{
   position: relative;
   flex-direction: column;
   gap: 0.5rem;
-  height: 50vh;
+  height: 60vh;
   padding-bottom: 90px;
 }
 
@@ -681,6 +682,13 @@ body{
     display:flex;
     flex-direction:column;
     width:100%;
+}
+
+.arome 
+{
+  width: inherit;
+  position: absolute;
+  z-index: -1;
 }
 
 
@@ -1073,6 +1081,34 @@ color: rgb(0, 255, 0);;
     color:#fff;
     background:rgba(255,255,255,.05);
 }
+@media (max-height:500px ) {
+  .landing {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  background-color: purple;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  padding: 2rem;
+  text-align: center;
+  z-index: 5;
+  pointer-events: none;
+}
+
+.tit 
+{
+  font-size: 10rem;
+  font-weight: 800;
+}
+
+/* Allow interaction with anything inside */
+.landing > * {
+  pointer-events: auto;
+}
+
+}
 
 /* Landing screen */
 .landing {
@@ -1410,9 +1446,13 @@ color: rgb(0, 255, 0);;
 .poli 
 {
   text-decoration: none;
-  letter-spacing: 0.4px;
+  letter-spacing: 0.8px;
+  background-color: var(--wablingkibla);
+    backdrop-filter:blur(10px);
+  border-radius: 20px;
+  padding: 5px;
   font-weight: 500;
-  color:  #000;
+  color:  white;
 }
 
 .poli:hover
@@ -1420,7 +1460,7 @@ color: rgb(0, 255, 0);;
   transition: 0.2s;
   color: #fff;
   font-weight: 600;
-  transform: scale(1.2);
+  transform: scale(1.0);
 }
 
 
