@@ -1086,7 +1086,7 @@ color: rgb(0, 255, 0);;
   position: absolute;
   inset: 0;
   display: flex;
-  background-color: purple;
+  background-color: transparent;
   flex-direction: column;
   justify-content: center;
   align-items: center;
