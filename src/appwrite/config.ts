@@ -3,8 +3,8 @@ import { Client, Databases } from "appwrite";
 const client = new Client();
 
 client
-  .setEndpoint(import.meta.env.VITE_APPWRITE_ENDPOINT)
-  .setProject(import.meta.env.VITE_APPWRITE_PROJECT_ID);
+  .setEndpoint('https://sgp.cloud.appwrite.io/v1')
+  .setProject('695fa78500123148c6ff');
 
 export const databases = new Databases(client);
 
