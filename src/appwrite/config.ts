@@ -8,8 +8,8 @@ client
 
 export const databases = new Databases(client);
 
-export const DATABASE_ID =
-  import.meta.env.VITE_APPWRITE_DATABASE_ID;
+export const DATABASE_ID = '696c7dc0000d7998f391'
+  
 
-export const SHENG_COLLECTION_ID =
-  import.meta.env.VITE_APPWRITE_SHENG_COLLECTION_ID;
+export const SHENG_COLLECTION_ID = 'sheng' 
+  
