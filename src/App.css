@@ -48,7 +48,7 @@ body{
   background-color: var(--wablingkibla);
   width: 100%;
   position: fixed;
-  height:125px;
+  height:75px;
   align-items: center;
   justify-content: center;
   display: flex;
@@ -56,7 +56,7 @@ body{
   bottom: 20px;
   left: 50%;
   transform:translateX(-50%);
-  width:min(900px,95%);
+  width:min(600px,85%);
   z-index:50;
   backdrop-filter:blur(10px);
 
@@ -64,7 +64,7 @@ body{
 
   border-radius:26px;
 
-  padding:12px;
+  padding:6px;
 
   box-shadow:
 
@@ -78,12 +78,19 @@ body{
 .category-carousel{
     display:flex;
     gap:10px;
-    width: inherit;
+    width: 95%;
     overflow-x:auto;
-
+    position: absolute;
     padding: 3px 5px;
-
+    z-index: 8;
+    margin-top: 5px;
     scrollbar-width:none;
+}
+
+/* When page is scrolling */
+.category-carousel.is-scrolling {
+  background: var(--wablingkibla);
+  backdrop-filter: blur(30px);
 }
 
 .category-carousel::-webkit-scrollbar{
@@ -136,10 +143,13 @@ body{
 }
 
 .category-hint{
-    font-size:9px;
+    font-size:10px;
+    justify-self: center;
+    align-self: center;
+    display: flex;
     color:rgba(255,255,255,.65);
     text-align:center;
-    margin:2px 0 4px;
+    margin:8px 0 4px;
     letter-spacing:0.2em;
 }
 .desmond 
@@ -1516,4 +1526,312 @@ color: rgb(0, 255, 0);;
   to{
     --angle:360deg;
   }
+}
+
+
+/* =========================================================
+   QUICK SETTINGS HOME SHELL
+   ========================================================= */
+
+.quick-settings-page {
+  position: relative;
+
+  width: 100%;
+  min-height: 100vh;
+
+  overflow: hidden;
+
+  background: #0e0e10;
+}
+
+
+/* =========================================================
+   BACKGROUND QUICK SETTINGS
+   ========================================================= */
+
+.quick-settings-background {
+  position: absolute;
+
+  inset: 0;
+
+  z-index: 0;
+
+  padding: 16px 14px;
+
+  box-sizing: border-box;
+
+  background: #0e0e10;
+}
+
+
+/* =========================================================
+   QUICK SETTINGS TILES
+   ========================================================= */
+
+.quick-settings-tiles-row {
+  display: flex;
+
+  width: min(100%, 500px);
+
+  gap: 10px;
+
+  margin-bottom: 10px;
+
+  transition: opacity 200ms ease;
+}
+
+.quick-settings-tile {
+  flex: 1;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 8px;
+
+  padding: 12px 14px;
+
+  border-radius: 24px;
+
+  background: #3a3a3d;
+
+  color: #eee;
+
+  font-size: 13px;
+
+  font-weight: 600;
+}
+
+.quick-settings-tile-active {
+  background: #cfe0ff;
+
+  color: #0b1a3a;
+}
+
+.quick-settings-tile-label {
+  white-space: nowrap;
+
+  overflow: hidden;
+
+  text-overflow: ellipsis;
+}
+
+
+/* =========================================================
+   NOTIFICATION
+   ========================================================= */
+
+.quick-settings-notification {
+  display: flex;
+
+  width: min(100%, 500px);
+  overflow:hidden;
+  height: 60px;
+  gap: 10px;
+  position: relative;
+  margin-top: 30px;
+
+  padding: 12px;
+
+  box-sizing: border-box;
+
+  border-radius: 18px;
+
+  background: var(--wablingkibla);
+
+  transition: opacity 200ms ease;
+}
+
+.quick-settings-notification-avatar {
+  flex-shrink: 0;
+
+  width: 34px;
+  height: 34px;
+
+  border-radius: 50%;
+
+  background: #4a4a4f;
+}
+
+.quick-settings-notification-content {
+  flex: 1;
+}
+
+.quick-settings-notification-title {
+  margin-bottom: 3px;
+
+  color: #f2f2f2;
+
+  font-size: 12.5px;
+
+  font-weight: 600;
+}
+
+.quick-settings-notification-body {
+  color: #9a9a9e;
+
+  font-size: 12px;
+}
+
+
+/* =========================================================
+   YOUR ACTUAL HOME PAGE
+   ========================================================= */
+
+.quick-settings-home {
+  position: relative;
+
+  z-index: 2;
+
+  width: 100%;
+
+  min-height: 100vh;
+
+  overflow: hidden;
+
+  transform-origin: top center;
+
+  will-change: transform;
+
+  background: #000;
+
+  transition:
+    transform 260ms cubic-bezier(.2, .8, .2, 1),
+    border-radius 260ms ease;
+}
+
+.quick-settings-home-dragging {
+  transition: none;
+}
+
+
+/* =========================================================
+   DRAG HANDLE
+   ========================================================= */
+
+.quick-settings-drag-handle {
+  position: absolute;
+
+  top: 0;
+  left: 0;
+
+  z-index: 100;
+
+  width: 100%;
+
+  height: 34px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  cursor: grab;
+
+  touch-action: none;
+}
+
+.quick-settings-drag-handle:active {
+  cursor: grabbing;
+}
+
+.quick-settings-grip {
+  width: 44px;
+
+  height: 4px;
+
+  border-radius: 2px;
+
+  background: rgba(255, 255, 255, 0.55);
+
+  box-shadow:
+    0 1px 5px rgba(0, 0, 0, 0.25);
+}
+
+
+/* =========================================================
+   ACTUAL HOME CONTENT
+   ========================================================= */
+
+.home-page-content {
+  position: relative;
+
+  width: 100%;
+
+  min-height: 100vh;
+}
+
+
+/* =========================================================
+   TOGGLE BUTTON
+   ========================================================= */
+
+.quick-settings-toggle {
+  position: fixed;
+
+  z-index: 200;
+
+  bottom: 14px;
+
+  margin-left:20px;
+  margin-bottom:5px;
+  left:0;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  width: 30px;
+  height: 30px;
+
+  padding: 0;
+
+
+  border: none;
+
+  border-radius: 50%;
+
+  background:var(--wabling);
+
+  color: #fff;
+
+  cursor: pointer;
+
+  backdrop-filter: blur(10px);
+
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.quick-settings-toggle svg {
+  transition: transform 260ms ease;
+}
+
+.quick-settings-chevron-open {
+  transform: rotate(180deg);
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 700px) {
+
+  .quick-settings-background {
+    padding: 12px;
+  }
+
+  .quick-settings-tiles-row {
+    width: 100%;
+  }
+
+  .quick-settings-notification {
+    width: 100%;
+  }
+
+  .quick-settings-grip {
+    width: 38px;
+  }
+
 }

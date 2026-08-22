@@ -1,14 +1,36 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState, type JSX, type ReactNode } from "react";
+import {
+  ChevronDown,
+} from "lucide-react";
+
+import {
+  MessageSquarePlus,
+  Crown,
+  History,
+  Info,
+} from "lucide-react";
+
 import Aurora from "../components/Aurora";
-import StaggeredMenu from "../components/StaggeredMenu";
 import Strands from "../components/Strands";
 import Chat from "../components/shared/Chat";
-import Logo from "../../public/assets/images/sheng.png";
-import Logotu from "../../public/assets/images/sheng-trs.png"
+import Logotu from "../../public/assets/images/sheng-trs.png";
 import { useSearch } from "../hooks/useSearch";
 import ShinyText from "../components/ShinyText";
 import Shuffle from "../components/Shuffle";
 import { getWordsByCategory } from "../appwrite/api";
+
+
+
+const MAX_REVEAL = 230;
+const OPEN_THRESHOLD = 0.38;
+
+const clamp = (
+  value: number,
+  min: number,
+  max: number
+): number => {
+  return Math.max(min, Math.min(max, value));
+};
 
 type ChatMessage = {
   id: number;
@@ -17,8 +39,123 @@ type ChatMessage = {
   loading?: boolean;
 };
 
+interface TileProps {
+  icon: ReactNode;
+  label: string;
+  active?: boolean;
+}
+
+function Tile({
+  icon,
+  label,
+  active,
+}: TileProps): JSX.Element {
+  return (
+    <div
+      className={`quick-settings-tile ${
+        active ? "quick-settings-tile-active" : ""
+      }`}
+    >
+      {icon}
+
+      <span className="quick-settings-tile-label">
+        {label}
+      </span>
+    </div>
+  );
+}
+
 const Home = () => {
   const { search } = useSearch();
+
+  /* =========================================================
+     QUICK SETTINGS STATE
+     ========================================================= */
+
+  const [reveal, setReveal] = useState(0);
+  const [dragging, setDragging] = useState(false);
+
+  const startY = useRef(0);
+  const startReveal = useRef(0);
+  const pointerId = useRef<number | null>(null);
+
+  const onPointerDown = useCallback(
+    (e: React.PointerEvent<HTMLDivElement>) => {
+      pointerId.current = e.pointerId;
+      startY.current = e.clientY;
+      startReveal.current = reveal;
+
+      setDragging(true);
+
+      e.currentTarget.setPointerCapture(e.pointerId);
+    },
+    [reveal]
+  );
+
+  const onPointerMove = useCallback(
+    (e: React.PointerEvent<HTMLDivElement>) => {
+      if (
+        !dragging ||
+        e.pointerId !== pointerId.current
+      ) {
+        return;
+      }
+
+      const delta = e.clientY - startY.current;
+
+      setReveal(
+        clamp(
+          startReveal.current + delta,
+          0,
+          MAX_REVEAL
+        )
+      );
+    },
+    [dragging]
+  );
+
+  const endDrag = useCallback(
+    (e: React.PointerEvent<HTMLDivElement>) => {
+      if (!dragging) return;
+
+      setDragging(false);
+
+      const progress = reveal / MAX_REVEAL;
+
+      setReveal(
+        progress > OPEN_THRESHOLD
+          ? MAX_REVEAL
+          : 0
+      );
+
+      if (
+        e.currentTarget.hasPointerCapture(
+          e.pointerId
+        )
+      ) {
+        e.currentTarget.releasePointerCapture(
+          e.pointerId
+        );
+      }
+    },
+    [dragging, reveal]
+  );
+
+  const toggleQuickSettings = () => {
+    setReveal((current) =>
+      current > 0 ? 0 : MAX_REVEAL
+    );
+  };
+
+  const progress = reveal / MAX_REVEAL;
+
+  const scale = 1 - progress * 0.06;
+  const radius = 8 + progress * 26;
+
+  /* =========================================================
+     HOME STATE
+     ========================================================= */
+
   const newChat = () => {
     setMessages([]);
     setQuery("");
@@ -27,40 +164,54 @@ const Home = () => {
   const [shengWords, setShengWords] = useState<string[]>([]);
   const [placeholder, setPlaceholder] = useState("");
 
-
   const [query, setQuery] = useState("");
   const [messages, setMessages] = useState<ChatMessage[]>([]);
 
-  const loadCategoryWords = async (category: string) => {
-  try {
-    const docs = await getWordsByCategory(category);
+  const [activeCategory, setActiveCategory] =
+    useState("all");
 
-    const words = docs.map((doc) => doc.word);
+  const loadCategoryWords = async (
+    category: string
+  ) => {
+    try {
+      const docs = await getWordsByCategory(category);
 
-    setShengWords(words);
-
-    if (words.length) {
-      setPlaceholder(
-        words[Math.floor(Math.random() * words.length)]
+      const words = docs.map(
+        (doc) => doc.word
       );
-    } else {
-      setPlaceholder("");
+
+      setShengWords(words);
+
+      if (words.length) {
+        setPlaceholder(
+          words[
+            Math.floor(
+              Math.random() * words.length
+            )
+          ]
+        );
+      } else {
+        setPlaceholder("");
+      }
+    } catch (err) {
+      console.error(err);
     }
-  } catch (err) {
-    console.error(err);
-  }
-};
+  };
 
   useEffect(() => {
-  if (!shengWords.length) return;
+    if (!shengWords.length) return;
 
-  const interval = setInterval(() => {
-    setPlaceholder(
-      shengWords[Math.floor(Math.random() * shengWords.length)]
-    );
-  }, 2500);
+    const interval = setInterval(() => {
+      setPlaceholder(
+        shengWords[
+          Math.floor(
+            Math.random() * shengWords.length
+          )
+        ]
+      );
+    }, 2500);
 
-  return () => clearInterval(interval);
+    return () => clearInterval(interval);
   }, [shengWords]);
 
   useEffect(() => {
@@ -73,19 +224,19 @@ const Home = () => {
       ariaLabel: "Start a new conversation",
       onClick: newChat,
     },
-    { label: "History",  target: "history" },
-    { label: "About",  target: "about" },
-    { label: "Subscribe", target : "subscribers" },
-    { label: "Contact",  target: "socials" },
-    { label: "Terms of use ",  target: "terms" },
-    { label: "Credits",  target: "terms" },
+    { label: "History", target: "history" },
+    { label: "About", target: "about" },
+    { label: "Subscribe", target: "subscribers" },
+    { label: "Contact", target: "socials" },
+    { label: "Terms of use", target: "terms" },
+    { label: "Credits", target: "terms" },
   ];
 
   const socialItems = [
     { label: "Memeflix", link: "#" },
     { label: "Instagram", link: "#" },
     { label: "X", link: "#" },
-    { label: "Whatsapp", link: "#"},
+    { label: "Whatsapp", link: "#" },
     { label: "TikTok", link: "#" },
   ];
 
@@ -108,7 +259,11 @@ const Home = () => {
       loading: true,
     };
 
-    setMessages((prev) => [...prev, userMessage, loadingMessage]);
+    setMessages((prev) => [
+      ...prev,
+      userMessage,
+      loadingMessage,
+    ]);
 
     try {
       const response = await search(query);
@@ -140,193 +295,374 @@ const Home = () => {
 
     setQuery("");
   };
-const categories = [
-  { id: "all", icon: "🌐", label: "All" },
-  { id: "nature", icon: "🌿", label: "Nature" },
-  { id: "actions", icon: "🏃", label: "Actions" },
-  { id: "emotions", icon: "😊", label: "Emotions" },
-  { id: "numbers", icon: "🔢", label: "Numbers" },
-  { id: "places", icon: "📍", label: "Places" },
-  { id: "people", icon: "👥", label: "People" },
-  { id: "foods", icon: "🍔", label: "Foods" },
-  { id: "general", icon: "📖", label: "General" },
-  { id: "languages", icon: "🗣️", label: "Languages" },
-  { id: "objects", icon: "📦", label: "Objects" },
-  { id: "movements", icon: "🚶", label: "Movements" },
-  { id: "education", icon: "🎓", label: "Education" },
-  { id: "transport", icon: "🚌", label: "Transport" },
-  { id: "drugs", icon: "💊", label: "Drugs" },
-  { id: "communication", icon: "💬", label: "Communication" },
-  { id: "clothing", icon: "👕", label: "Clothing" },
-  { id: "health", icon: "🩺", label: "Health" },
-  { id: "currencies", icon: "💰", label: "Currencies" },
-  { id: "body", icon: "🦴", label: "Body" },
-  { id: "beauty", icon: "💄", label: "Beauty" },
-  { id: "relationships", icon: "❤️", label: "Relationships" },
-  { id: "music", icon: "🎵", label: "Music" },
-  { id: "decriptive", icon: "🏷️", label: "Descriptive" },
-  { id: "housing", icon: "🏠", label: "Housing" },
-  { id: "entertainment", icon: "🎭", label: "Entertainment" },
-  { id: "sounds", icon: "🔊", label: "Sounds" },
-  { id: "order", icon: "📋", label: "Order" },
-  { id: "time", icon: "⏰", label: "Time" },
-  { id: "media", icon: "📺", label: "Media" },
-  { id: "appearance", icon: "🪞", label: "Appearance" },
-  { id: "work", icon: "💼", label: "Work" },
-  { id: "animals", icon: "🐾", label: "Animals" },
-  { id: "materials", icon: "🧱", label: "Materials" },
-  { id: "utitlities", icon: "🛠️", label: "Utilities" },
-  { id: "household", icon: "🛋️", label: "Household" },
-  { id: "enviroment", icon: "🌍", label: "Environment" },
-  { id: "accessories", icon: "👜", label: "Accessories" },
-  { id: "electronics", icon: "💻", label: "Electronics" },
-  { id: "sports", icon: "⚽", label: "Sports" },
-  { id: "life", icon: "🌱", label: "Life" },
-  { id: "insults", icon: "😤", label: "Insults" },
-  { id: "greetings", icon: "👋", label: "Greetings" },
-  { id: "compliments", icon: "🌟", label: "Compliments" },
-];
 
-const [activeCategory, setActiveCategory] = useState("all");
-
+  const categories = [
+    { id: "all", icon: "🌐", label: "All" },
+    { id: "nature", icon: "🌿", label: "Nature" },
+    { id: "actions", icon: "🏃", label: "Actions" },
+    { id: "emotions", icon: "😊", label: "Emotions" },
+    { id: "numbers", icon: "🔢", label: "Numbers" },
+    { id: "places", icon: "📍", label: "Places" },
+    { id: "people", icon: "👥", label: "People" },
+    { id: "foods", icon: "🍔", label: "Foods" },
+    { id: "general", icon: "📖", label: "General" },
+    { id: "languages", icon: "🗣️", label: "Languages" },
+    { id: "objects", icon: "📦", label: "Objects" },
+    { id: "movements", icon: "🚶", label: "Movements" },
+    { id: "education", icon: "🎓", label: "Education" },
+    { id: "transport", icon: "🚌", label: "Transport" },
+    { id: "drugs", icon: "💊", label: "Drugs" },
+    { id: "communication", icon: "💬", label: "Communication" },
+    { id: "clothing", icon: "👕", label: "Clothing" },
+    { id: "health", icon: "🩺", label: "Health" },
+    { id: "currencies", icon: "💰", label: "Currencies" },
+    { id: "body", icon: "🦴", label: "Body" },
+    { id: "beauty", icon: "💄", label: "Beauty" },
+    { id: "relationships", icon: "❤️", label: "Relationships" },
+    { id: "music", icon: "🎵", label: "Music" },
+    { id: "decriptive", icon: "🏷️", label: "Descriptive" },
+    { id: "housing", icon: "🏠", label: "Housing" },
+    { id: "entertainment", icon: "🎭", label: "Entertainment" },
+    { id: "sounds", icon: "🔊", label: "Sounds" },
+    { id: "order", icon: "📋", label: "Order" },
+    { id: "time", icon: "⏰", label: "Time" },
+    { id: "media", icon: "📺", label: "Media" },
+    { id: "appearance", icon: "🪞", label: "Appearance" },
+    { id: "work", icon: "💼", label: "Work" },
+    { id: "animals", icon: "🐾", label: "Animals" },
+    { id: "materials", icon: "🧱", label: "Materials" },
+    { id: "utitlities", icon: "🛠️", label: "Utilities" },
+    { id: "household", icon: "🛋️", label: "Household" },
+    { id: "enviroment", icon: "🌍", label: "Environment" },
+    { id: "accessories", icon: "👜", label: "Accessories" },
+    { id: "electronics", icon: "💻", label: "Electronics" },
+    { id: "sports", icon: "⚽", label: "Sports" },
+    { id: "life", icon: "🌱", label: "Life" },
+    { id: "insults", icon: "😤", label: "Insults" },
+    { id: "greetings", icon: "👋", label: "Greetings" },
+    { id: "compliments", icon: "🌟", label: "Compliments" },
+  ];
 
   return (
-    <div className="hero">
-      <Aurora
-        colorStops={["#ff2727", "#f3f6f8", "#7cff67"]}
-        blend={0.5}
-        amplitude={1}
-        speed={1}
-      />
+    <div className="quick-settings-page">
 
-      <div className="topbar">
-        <StaggeredMenu
-          position="right"
-          items={menuItems}
-          socialItems={socialItems}
-          displaySocials
-          displayItemNumbering={false}
-          menuButtonColor="#ffffff"
-          openMenuButtonColor="#ffffff"
-          changeMenuColorOnOpen
-          colors={["#7cff67", "#ff2727"]}
-          logoUrl={Logo}
-          accentColor="#06bb28"
-        />
-      </div>
+      {/* =====================================================
+          QUICK SETTINGS BACKGROUND
+          ===================================================== */}
 
-      {messages.length === 0 ? (
-        <div className="landing">
-          <img src={Logotu} className="hero-log" />
+      <div className="quick-settings-background">
 
-          
-          <Shuffle
-            text="Meet"
-            className="tit"
-            shuffleDirection="right"
-            duration={0.25}
-          />
+        <div
+  className="quick-settings-tiles-row"
+  style={{
+    opacity: clamp(
+      progress * 2.4,
+      0,
+      1
+    ),
+  }}
+>
+  <Tile
+    icon={<MessageSquarePlus size={18} />}
+    label="New Chat"
+    active
+  />
 
-          <button className="b1x">
-            <div className="angel">
-              <div className="io">S</div>
-              <div className="oi">H</div>
-              <div className="oo">E</div>
-              <div className="ii">N</div>
-              <div className="ioi">G</div>
-              <div className="smm">AI</div>
-            </div>
-          </button>
-          
+  <Tile
+    icon={<Crown size={18} />}
+    label="Subscribe"
+  />
+          </div>
 
-           <ShinyText
-              text="Your AI companion for decoding Kenya's fastest changing language"
-              className="ans"
-              speed={1.5}
-              shineColor="#fff"
+          <div
+            className="quick-settings-tiles-row"
+            style={{
+              opacity: clamp(
+                progress * 2.4 - 0.15,
+                0,
+                1
+              ),
+            }}
+          >
+            <Tile
+              icon={<History size={18} />}
+              label="History"
             />
 
-  
+            <Tile
+              icon={<Info size={18} />}
+              label="About"
+            />
+          </div>
+
+        
+        <div
+          className="quick-settings-notification"
+          style={{
+            opacity: clamp(
+              progress * 2.4 - 0.3,
+              0,
+              1
+            ),
+          }}
+        >
+       
+
+
+        <div className="category-carousel">
+          {categories.map((category) => (
+            <button
+              key={category.id}
+              className={`category-card ${
+                activeCategory ===
+                category.id
+                  ? "active"
+                  : ""
+              }`}
+              onClick={() => {
+                setActiveCategory(
+                  category.id
+                );
+
+                loadCategoryWords(
+                  category.id
+                );
+              }}
+            >
+              <span className="emoji">
+                {category.icon}
+              </span>
+
+              <span>
+                {category.label}
+              </span>
+            </button>
+          ))}
+
         </div>
-      ) : (
-        <Chat
-          messages={messages}
-          search={search}
-        />
-)}
-      <div className="georgia">
-      {/* Helper text */}
-       {activeCategory === "all" && (
+
+        </div>
+
+         {activeCategory === "all" && (
           <ShinyText
-            text=" Tap a category to get suggested Sheng words"
+            text=" Select a category above to get suggested Sheng words on your keypad"
             className="category-hint"
             speed={1}
             shineColor="#fff"
           />
         )}
 
-      {/* Categories */}
-      <div className="category-carousel">
-        {categories.map((category) => (
-          <button
-            key={category.id}
-            className={`category-card ${
-              activeCategory === category.id ? "active" : ""
-            }`}
-            onClick={() => {
-            setActiveCategory(category.id);
-            loadCategoryWords(category.id);
-          }}
-          >
-            <span className="emoji">{category.icon}</span>
-            <span>{category.label}</span>
-          </button>
-        ))}
+
+
       </div>
 
 
-      {/* Search */}
-      <div className="search-container">
-        <input
-          className="shengtezo"
-          value={query}
-          placeholder={`Search "${placeholder}"`}
-          onChange={(e) => setQuery(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") handleSearch();
-          }}
-        />
+      {/* =====================================================
+          YOUR ACTUAL HOME PAGE
+          ===================================================== */}
 
-        <button
-          type="button"
-          className="search-btn"
-          onClick={handleSearch}
-          disabled={!query.trim()}
+      <div
+        className={`quick-settings-home ${
+          dragging
+            ? "quick-settings-home-dragging"
+            : ""
+        }`}
+        style={{
+          transform: `
+            translateY(${reveal}px)
+            scale(${scale})
+          `,
+          borderRadius: `
+            ${radius}px
+            ${radius}px
+            0
+            0
+          `,
+          boxShadow:
+            progress > 0.02
+              ? "0 -14px 30px rgba(0,0,0,0.45)"
+              : "none",
+        }}
+      >
+
+        {/* Drag handle */}
+        <div
+          className="quick-settings-drag-handle"
+          onPointerDown={onPointerDown}
+          onPointerMove={onPointerMove}
+          onPointerUp={endDrag}
+          onPointerCancel={endDrag}
+          onClick={
+            reveal === 0 ||
+            reveal === MAX_REVEAL
+              ? toggleQuickSettings
+              : undefined
+          }
         >
-          <Strands
-            colors={["#7cff67", "#ff2727", "#5798f4"]}
-            count={3}
-            speed={0.5}
-            amplitude={1.6}
-            waviness={1}
-            thickness={1.4}
-            glow={2.6}
-            taper={4}
-            spread={1}
-            intensity={0.6}
-            saturation={3}
-            opacity={1}
-            scale={1.4}
-            glass
-            refraction={1}
-            dispersion={1}
-            glassSize={0.95}
-            hueShift={0}
-          />
-        </button>
+          <div className="quick-settings-grip" />
+        </div>
+
+
+        {/* ===================================================
+            ORIGINAL HOME PAGE
+            =================================================== */}
+
+        <div className="home-page-content">
+
+          <div className="hero">
+
+            <Aurora
+              colorStops={[
+                "#ff2727",
+                "#f3f6f8",
+                "#7cff67",
+              ]}
+              blend={0.5}
+              amplitude={1}
+              speed={1}
+            />
+
+            {/** 
+            <div className="topbar">
+              <StaggeredMenu
+                position="right"
+                items={menuItems}
+                socialItems={socialItems}
+                displaySocials
+                displayItemNumbering={false}
+                menuButtonColor="#ffffff"
+                openMenuButtonColor="#ffffff"
+                changeMenuColorOnOpen
+                colors={[
+                  "#7cff67",
+                  "#ff2727",
+                ]}
+                logoUrl={Logo}
+                accentColor="#06bb28"
+              />
+            </div>
+
+            */}
+
+
+            {messages.length === 0 ? (
+              <div className="landing">
+
+                <img
+                  src={Logotu}
+                  className="hero-log"
+                />
+
+                <Shuffle
+                  text="Meet"
+                  className="tit"
+                  shuffleDirection="right"
+                  duration={0.25}
+                />
+
+                <button className="b1x">
+                  <div className="angel">
+                    <div className="io">S</div>
+                    <div className="oi">H</div>
+                    <div className="oo">E</div>
+                    <div className="ii">N</div>
+                    <div className="ioi">G</div>
+                    <div className="smm">AI</div>
+                  </div>
+                </button>
+
+                <ShinyText
+                  text="Your AI companion for decoding Kenya's fastest changing language"
+                  className="ans"
+                  speed={1.5}
+                  shineColor="#fff"
+                />
+
+              </div>
+            ) : (
+              <Chat
+                messages={messages}
+                search={search}
+              />
+            )}
+
+
+            <div className="georgia">
+
+
+              <div className="search-container">
+                <button
+                  className="quick-settings-toggle"
+                  onClick={toggleQuickSettings}
+                  aria-label="Toggle quick settings"
+                >
+                  <ChevronDown
+                    size={16}
+                    className={
+                      reveal > 0
+                        ? "quick-settings-chevron-open"
+                        : ""
+                    }
+                  />
+                </button>
+
+                <input
+                  className="shengtezo"
+                  value={query}
+                  placeholder={`Search "${placeholder}"`}
+                  onChange={(e) =>
+                    setQuery(e.target.value)
+                  }
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      handleSearch();
+                    }
+                  }}
+                />
+
+                <button
+                  type="button"
+                  className="search-btn"
+                  onClick={handleSearch}
+                  disabled={!query.trim()}
+                >
+                  <Strands
+                    colors={[
+                      "#7cff67",
+                      "#ff2727",
+                      "#5798f4",
+                    ]}
+                    count={3}
+                    speed={0.5}
+                    amplitude={1.6}
+                    waviness={1}
+                    thickness={1.4}
+                    glow={2.6}
+                    taper={4}
+                    spread={1}
+                    intensity={0.6}
+                    saturation={3}
+                    opacity={1}
+                    scale={1.4}
+                    glass
+                    refraction={1}
+                    dispersion={1}
+                    glassSize={0.95}
+                    hueShift={0}
+                  />
+                </button>
+
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+
       </div>
 
-    </div>
+
     </div>
   );
 };
