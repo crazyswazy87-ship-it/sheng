@@ -39,6 +39,14 @@ type ChatMessage = {
   loading?: boolean;
 };
 
+type ChatHistory = {
+  id: string;
+  title: string;
+  messages: ChatMessage[];
+  createdAt: number;
+  updatedAt: number;
+};
+
 interface TileProps {
   icon: ReactNode;
   label: string;
@@ -157,15 +165,84 @@ const Home = () => {
      ========================================================= */
 
   const newChat = () => {
-    setMessages([]);
-    setQuery("");
-  };
+  // Save the current conversation before starting a new one
+  if (messages.length > 0) {
+    const firstUserMessage = messages.find(
+      (message) => message.role === "user"
+    );
+
+    const conversation: ChatHistory = {
+      id: conversationId || crypto.randomUUID(),
+      title:
+        typeof firstUserMessage?.content === "string"
+          ? firstUserMessage.content.slice(0, 50)
+          : "New Conversation",
+      messages,
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+    };
+
+    saveHistory(conversation);
+  }
+
+  setMessages([]);
+  setQuery("");
+  setConversationId(null);
+  setShowHistory(false);
+  setReveal(0);
+};
 
   const [shengWords, setShengWords] = useState<string[]>([]);
   const [placeholder, setPlaceholder] = useState("");
 
   const [query, setQuery] = useState("");
   const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [history, setHistory] = useState<ChatHistory[]>([]);
+  const [conversationId, setConversationId] = useState<string | null>(null);
+  const [showHistory, setShowHistory] = useState(false);
+
+  /* =========================================================
+    LOAD HISTORY FROM LOCAL STORAGE
+    ========================================================= */
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem("shengai_history");
+
+      if (!saved) return;
+
+      const parsed: ChatHistory[] = JSON.parse(saved);
+
+      if (Array.isArray(parsed)) {
+        setHistory(parsed);
+      }
+    } catch (error) {
+      console.error("Failed to load ShengAI history:", error);
+
+      localStorage.removeItem("shengai_history");
+    }
+  }, []);
+
+
+  /* =========================================================
+    SAVE HISTORY
+    ========================================================= */
+
+  const saveHistory = useCallback((conversation: ChatHistory) => {
+    setHistory((prev) => {
+      const updated = [
+        conversation,
+        ...prev.filter((item) => item.id !== conversation.id),
+      ];
+
+      localStorage.setItem(
+        "shengai_history",
+        JSON.stringify(updated)
+      );
+
+      return updated;
+    });
+  }, []);
 
   const [activeCategory, setActiveCategory] =
     useState("all");
@@ -218,30 +295,11 @@ const Home = () => {
     loadCategoryWords("all");
   }, []);
 
-  const menuItems = [
-    {
-      label: "New Chat",
-      ariaLabel: "Start a new conversation",
-      onClick: newChat,
-    },
-    { label: "History", target: "history" },
-    { label: "About", target: "about" },
-    { label: "Subscribe", target: "subscribers" },
-    { label: "Contact", target: "socials" },
-    { label: "Terms of use", target: "terms" },
-    { label: "Credits", target: "terms" },
-  ];
-
-  const socialItems = [
-    { label: "Memeflix", link: "#" },
-    { label: "Instagram", link: "#" },
-    { label: "X", link: "#" },
-    { label: "Whatsapp", link: "#" },
-    { label: "TikTok", link: "#" },
-  ];
 
   const handleSearch = async () => {
     if (!query.trim()) return;
+
+    const currentQuery = query.trim();
 
     const userId = Date.now();
     const aiId = userId + 1;
@@ -249,7 +307,7 @@ const Home = () => {
     const userMessage: ChatMessage = {
       id: userId,
       role: "user",
-      content: query,
+      content: currentQuery,
     };
 
     const loadingMessage: ChatMessage = {
@@ -259,41 +317,111 @@ const Home = () => {
       loading: true,
     };
 
-    setMessages((prev) => [
-      ...prev,
+    const updatedMessages = [
+      ...messages,
       userMessage,
       loadingMessage,
-    ]);
+    ];
+
+    setMessages(updatedMessages);
+
+    // Create an ID for this conversation if it doesn't have one
+    const activeConversationId =
+      conversationId || crypto.randomUUID();
+
+    setConversationId(activeConversationId);
 
     try {
-      const response = await search(query);
+      const response = await search(currentQuery);
 
-      setMessages((prev) =>
-        prev.map((msg) =>
-          msg.id === aiId
-            ? {
-                ...msg,
-                loading: false,
-                content: response,
-              }
-            : msg
-        )
-      );
-    } catch {
-      setMessages((prev) =>
-        prev.map((msg) =>
-          msg.id === aiId
-            ? {
-                ...msg,
-                loading: false,
-                content: null,
-              }
-            : msg
-        )
-      );
+      const finalMessages: ChatMessage[] = [
+        ...messages,
+        userMessage,
+        {
+          id: aiId,
+          role: "assistant",
+          content: response,
+          loading: false,
+        },
+      ];
+
+      setMessages(finalMessages);
+
+      const conversation: ChatHistory = {
+        id: activeConversationId,
+        title: currentQuery.slice(0, 50),
+        messages: finalMessages,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+      };
+
+      saveHistory(conversation);
+    } catch (error) {
+      console.error("Search failed:", error);
+
+      const finalMessages: ChatMessage[] = [
+        ...messages,
+        userMessage,
+        {
+          id: aiId,
+          role: "assistant",
+          content: null,
+          loading: false,
+        },
+      ];
+
+      setMessages(finalMessages);
+
+      const conversation: ChatHistory = {
+        id: activeConversationId,
+        title: currentQuery.slice(0, 50),
+        messages: finalMessages,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+      };
+
+      saveHistory(conversation);
     }
 
     setQuery("");
+  };
+
+  const openHistory = () => {
+    setReveal(0);
+    setShowHistory(true);
+  };
+
+  const loadHistory = (conversation: ChatHistory) => {
+    setMessages(conversation.messages);
+    setConversationId(conversation.id);
+    setQuery("");
+    setShowHistory(false);
+    setReveal(0);
+  };
+
+  const deleteHistory = (
+    e: React.MouseEvent,
+    id: string
+  ) => {
+    e.stopPropagation();
+
+    setHistory((prev) => {
+      const updated = prev.filter(
+        (conversation) => conversation.id !== id
+      );
+
+      localStorage.setItem(
+        "shengai_history",
+        JSON.stringify(updated)
+      );
+
+      return updated;
+    });
+
+    if (conversationId === id) {
+      setMessages([]);
+      setConversationId(null);
+    }
   };
 
   const categories = [
@@ -346,54 +474,161 @@ const Home = () => {
   return (
     <div className="quick-settings-page">
 
+      {showHistory && (
+        <div className="history-overlay">
+
+          <div className="history-panel">
+
+            <div className="history-header">
+              <div>
+                <h2>History</h2>
+                <span>
+                  {history.length} conversation
+                  {history.length !== 1 ? "s" : ""}
+                </span>
+              </div>
+
+              <button
+                type="button"
+                className="history-close"
+                onClick={() => setShowHistory(false)}
+              >
+                ×
+              </button>
+            </div>
+
+            {history.length === 0 ? (
+              <div className="history-empty">
+                <History size={38} />
+
+                <h3>No conversations yet</h3>
+
+                <p>
+                  Your ShengAI searches will appear here.
+                </p>
+              </div>
+            ) : (
+              <div className="history-list">
+
+            {history.map((conversation) => (
+              <div
+                key={conversation.id}
+                className="history-item"
+                onClick={() => loadHistory(conversation)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    loadHistory(conversation);
+                  }
+                }}
+              >
+
+                <div className="history-item-icon">
+                  <History size={18} />
+                </div>
+
+                <div className="history-item-content">
+                  <strong>
+                    {conversation.title}
+                  </strong>
+
+                  <span>
+                    {conversation.messages.length} messages
+                  </span>
+                </div>
+
+                <button
+                  type="button"
+                  className="history-delete"
+                  onClick={(e) =>
+                    deleteHistory(e, conversation.id)
+                  }
+                  aria-label="Delete conversation"
+                >
+                  ×
+                </button>
+
+              </div>
+            ))}
+
+          </div>
+                      )}
+
+                    </div>
+
+                  </div>
+                )}
+
       {/* =====================================================
           QUICK SETTINGS BACKGROUND
           ===================================================== */}
 
       <div className="quick-settings-background">
 
+
+        {/* ROW 1 */}
         <div
-  className="quick-settings-tiles-row"
-  style={{
-    opacity: clamp(
-      progress * 2.4,
-      0,
-      1
-    ),
-  }}
->
-  <Tile
-    icon={<MessageSquarePlus size={18} />}
-    label="New Chat"
-    active
-  />
+          className="quick-settings-tiles-row"
+          style={{
+            opacity: clamp(progress * 2.4, 0, 1),
+          }}
+        >
 
-  <Tile
-    icon={<Crown size={18} />}
-    label="Subscribe"
-  />
-          </div>
-
-          <div
-            className="quick-settings-tiles-row"
-            style={{
-              opacity: clamp(
-                progress * 2.4 - 0.15,
-                0,
-                1
-              ),
-            }}
+          <button
+            type="button"
+            className="quick-settings-action quick-settings-action-active"
+            onClick={newChat}
           >
-            <Tile
-              icon={<History size={18} />}
-              label="History"
-            />
+            <MessageSquarePlus size={18} />
+            <span>New Chat</span>
+          </button>
 
-            <Tile
-              icon={<Info size={18} />}
-              label="About"
-            />
-          </div>
+          <button
+            type="button"
+            className="quick-settings-action"
+          >
+            <Crown size={18} />
+
+            <span>Subscribe</span>
+          </button>
+
+        </div>
+
+
+        {/* ROW 2 */}
+        <div
+          className="quick-settings-tiles-row"
+          style={{
+            opacity: clamp(
+              progress * 2.4 - 0.15,
+              0,
+              1
+            ),
+          }}
+        >
+
+          <button
+            type="button"
+            className="quick-settings-action"
+            onClick={openHistory}
+          >
+            <History size={18} />
+            <span>History</span>
+          </button>
+
+          <button
+            type="button"
+            className="quick-settings-action"
+          >
+            <Info size={18} />
+
+            <span>About</span>
+          </button>
+
+        </div>
+
+      
 
         
         <div
@@ -587,11 +822,15 @@ const Home = () => {
             )}
 
 
-            <div className="georgia">
+            <div
+              className={`georgia ${
+                messages.length === 0
+                  ? "georgia-centered"
+                  : "georgia-bottom"
+              }`}
+            >
 
-
-              <div className="search-container">
-                <button
+               <button
                   className="quick-settings-toggle"
                   onClick={toggleQuickSettings}
                   aria-label="Toggle quick settings"
@@ -605,6 +844,7 @@ const Home = () => {
                     }
                   />
                 </button>
+              <div className="search-container">
 
                 <input
                   className="shengtezo"

@@ -51,7 +51,7 @@ body{
   height:75px;
   align-items: center;
   justify-content: center;
-  display: flex;
+  display: grid;
   flex-direction: column;
   bottom: 20px;
   left: 50%;
@@ -73,6 +73,21 @@ body{
   0 0 100px rgba(0,255,0,.05);
 }
 
+.georgia-centered {
+  top: 50%;
+
+  bottom: auto;
+
+  transform: translate(-50%, -0%);
+}
+
+.georgia-bottom {
+  top: auto;
+
+  bottom: 20px;
+
+  transform: translateX(-50%);
+}
 
 
 .category-carousel{
@@ -139,7 +154,7 @@ body{
     display:flex;
     align-items:center;
     gap:12px;
-    
+    width: 300px;
 }
 
 .category-hint{
@@ -1111,6 +1126,7 @@ color: rgb(0, 255, 0);;
 {
   font-size: 10rem;
   font-weight: 800;
+  
 }
 
 /* Allow interaction with anything inside */
@@ -1129,6 +1145,7 @@ color: rgb(0, 255, 0);;
   justify-content: center;
   align-items: center;
   gap: 1.2rem;
+  margin-top: 20px;
   padding: 2rem;
   text-align: center;
   z-index: 5;
@@ -1139,6 +1156,7 @@ color: rgb(0, 255, 0);;
 {
   font-size: 12rem;
   font-weight: 800;
+  opacity: 0;
 }
 
 /* Allow interaction with anything inside */
@@ -1548,88 +1566,139 @@ color: rgb(0, 255, 0);;
 /* =========================================================
    BACKGROUND QUICK SETTINGS
    ========================================================= */
-
 .quick-settings-background {
   position: absolute;
-
   inset: 0;
 
   z-index: 0;
 
   padding: 16px 14px;
-
   box-sizing: border-box;
 
   background: #0e0e10;
+
+  /* Center the quick settings content */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 
 /* =========================================================
-   QUICK SETTINGS TILES
+   QUICK SETTINGS ROW
    ========================================================= */
 
 .quick-settings-tiles-row {
   display: flex;
 
-  width: min(100%, 500px);
+  width: min(100%, 625px);
 
-  gap: 10px;
+  gap: 12px;
 
   margin-bottom: 10px;
 
   transition: opacity 200ms ease;
 }
 
-.quick-settings-tile {
+
+/* =========================================================
+   QUICK SETTINGS ACTION
+   ========================================================= */
+
+.quick-settings-action {
   flex: 1;
 
   display: flex;
-
   align-items: center;
+  justify-content: flex-start;
 
-  gap: 8px;
+  gap: 10px;
 
-  padding: 12px 14px;
+  padding: 14px 18px;
 
-  border-radius: 24px;
+  border: none;
+  border-radius: 28px;
 
-  background: #3a3a3d;
+  background-image: linear-gradient(
+    to right,
+    #52c234 0%,
+    #061700 51%,
+    #52c234 100%
+  );
 
-  color: #eee;
+  background-size: 200% auto;
+  background-position: left center;
 
-  font-size: 13px;
+  color: #fff;
 
+  font-family: inherit;
+  font-size: 15px;
   font-weight: 600;
+
+  text-align: left;
+
+  cursor: pointer;
+
+  transition:
+    background-position 0.5s ease,
+    transform 180ms ease,
+    box-shadow 180ms ease;
+
+  outline: none;
 }
 
-.quick-settings-tile-active {
-  background: #cfe0ff;
 
-  color: #0b1a3a;
+/* Active */
+
+.quick-settings-action-active {
+  color: #fff;
 }
 
-.quick-settings-tile-label {
+
+/* Hover */
+
+.quick-settings-action:hover {
+  background-position: right center;
+
+  color: #fff;
+
+  transform: translateY(-1px);
+
+  box-shadow: 0 0 20px rgba(82, 194, 52, 0.35);
+}
+
+.quick-settings-action:active {
+  transform: scale(0.97);
+}
+
+/* Click */
+
+.quick-settings-action:active {
+  transform: scale(0.97);
+}
+
+
+
+
+/* Text */
+
+.quick-settings-action span {
   white-space: nowrap;
-
   overflow: hidden;
-
   text-overflow: ellipsis;
 }
-
-
 /* =========================================================
    NOTIFICATION
    ========================================================= */
 
 .quick-settings-notification {
   display: flex;
-
   width: min(100%, 500px);
   overflow:hidden;
   height: 60px;
   gap: 10px;
   position: relative;
-  margin-top: 30px;
+  margin-top: 10px;
 
   padding: 12px;
 
@@ -1769,12 +1838,12 @@ color: rgb(0, 255, 0);;
 .quick-settings-toggle {
   position: fixed;
 
-  z-index: 200;
+  z-index: 2;
 
   bottom: 14px;
 
   margin-left:20px;
-  margin-bottom:5px;
+  margin-bottom:6.5px;
   left:0;
 
   display: flex;
@@ -1834,4 +1903,248 @@ color: rgb(0, 255, 0);;
     width: 38px;
   }
 
+}
+
+
+/*HISTORY*/
+.history-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 24px;
+
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+.history-panel {
+  width: min(620px, 100%);
+  max-height: 80vh;
+
+  overflow: hidden;
+
+  background: rgba(12, 12, 12, 0.96);
+
+  border: 1px solid rgba(255, 255, 255, 0.1);
+
+  border-radius: 28px;
+
+  box-shadow:
+    0 30px 80px rgba(0, 0, 0, 0.55);
+
+  display: flex;
+  flex-direction: column;
+}
+
+.history-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 22px 24px;
+
+  border-bottom: 1px solid
+    rgba(255, 255, 255, 0.08);
+}
+
+.history-header h2 {
+  margin: 0;
+
+  color: #fff;
+
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.history-header span {
+  display: block;
+
+  margin-top: 4px;
+
+  color: rgba(255, 255, 255, 0.45);
+
+  font-size: 13px;
+}
+
+.history-close {
+  width: 38px;
+  height: 38px;
+
+  border: 0;
+  border-radius: 50%;
+
+  background: rgba(255, 255, 255, 0.08);
+
+  color: #fff;
+
+  font-size: 25px;
+
+  cursor: pointer;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.history-list {
+  padding: 12px;
+
+  overflow-y: auto;
+}
+
+.history-item {
+  width: 100%;
+
+  display: flex;
+  align-items: center;
+
+  gap: 14px;
+
+  padding: 15px;
+
+  margin-bottom: 6px;
+
+  border: 0;
+  border-radius: 18px;
+
+  background: transparent;
+
+  color: #fff;
+
+  text-align: left;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+.history-item:hover {
+  background: rgba(255, 255, 255, 0.07);
+
+  transform: translateY(-1px);
+}
+
+.history-item-icon {
+  width: 42px;
+  height: 42px;
+
+  flex-shrink: 0;
+
+  border-radius: 14px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: rgba(124, 255, 103, 0.1);
+
+  color: #7cff67;
+}
+
+.history-item-content {
+  min-width: 0;
+
+  flex: 1;
+
+  display: flex;
+  flex-direction: column;
+
+  gap: 4px;
+}
+
+.history-item-content strong {
+  overflow: hidden;
+
+  color: #fff;
+
+  font-size: 15px;
+
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.history-item-content span {
+  color: rgba(255, 255, 255, 0.4);
+
+  font-size: 12px;
+}
+
+.history-delete {
+  width: 32px;
+  height: 32px;
+
+  flex-shrink: 0;
+
+  border: 0;
+  border-radius: 10px;
+
+  background: transparent;
+
+  color: rgba(255, 255, 255, 0.35);
+
+  font-size: 20px;
+
+  cursor: pointer;
+}
+
+.history-delete:hover {
+  background: rgba(255, 39, 39, 0.12);
+
+  color: #ff5757;
+}
+
+.history-empty {
+  min-height: 280px;
+
+  display: flex;
+  flex-direction: column;
+
+  align-items: center;
+  justify-content: center;
+
+  padding: 40px;
+
+  text-align: center;
+
+  color: rgba(255, 255, 255, 0.35);
+}
+
+.history-empty svg {
+  margin-bottom: 14px;
+
+  color: rgba(124, 255, 103, 0.6);
+}
+
+.history-empty h3 {
+  margin: 0 0 7px;
+
+  color: #fff;
+
+  font-size: 18px;
+}
+
+.history-empty p {
+  margin: 0;
+
+  font-size: 13px;
+}
+
+@media (max-width: 600px) {
+  .history-overlay {
+    padding: 12px;
+  }
+
+  .history-panel {
+    max-height: 88vh;
+
+    border-radius: 22px;
+  }
 }
