@@ -3,6 +3,8 @@ import {
   ChevronDown,
 } from "lucide-react";
 
+import bseven from "../../public/assets/images/bseven-white.png"
+
 import {
   MessageSquarePlus,
   Crown,
@@ -17,7 +19,11 @@ import Logotu from "../../public/assets/images/sheng-trs.png";
 import { useSearch } from "../hooks/useSearch";
 import ShinyText from "../components/ShinyText";
 import Shuffle from "../components/Shuffle";
-import { getWordsByCategory } from "../appwrite/api";
+
+import {
+  getWordsByCategory,
+  subscribeToShengDrops,
+} from "../appwrite/api";
 
 
 
@@ -200,6 +206,7 @@ const Home = () => {
   const [history, setHistory] = useState<ChatHistory[]>([]);
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [showHistory, setShowHistory] = useState(false);
+  const [showAbout, setShowAbout] = useState(false);
 
   /* =========================================================
     LOAD HISTORY FROM LOCAL STORAGE
@@ -424,6 +431,17 @@ const Home = () => {
     }
   };
 
+  /**=========================
+   * Subscribe
+   *  ============================= */
+  const [showSubscribe, setShowSubscribe] = useState(false);
+  const [email, setEmail] = useState("");
+  const [subscribing, setSubscribing] = useState(false);
+  const [subscribeMessage, setSubscribeMessage] = useState("");
+
+
+
+
   const categories = [
     { id: "all", icon: "🌐", label: "All" },
     { id: "nature", icon: "🌿", label: "Nature" },
@@ -497,6 +515,7 @@ const Home = () => {
               </button>
             </div>
 
+
             {history.length === 0 ? (
               <div className="history-empty">
                 <History size={38} />
@@ -553,13 +572,218 @@ const Home = () => {
             ))}
 
           </div>
-                      )}
+              )}
 
-                    </div>
+            </div>
 
-                  </div>
-                )}
+          </div>
+        )}
 
+        {showSubscribe && (
+        <div className="history-overlay">
+
+          <div className="history-panel">
+
+            {/* HEADER */}
+            <div className="history-header">
+              <div>
+                <h2>Subscribe</h2>
+                <span>Stay in the Sheng loop</span>
+              </div>
+
+              <button
+                type="button"
+                className="history-close"
+                onClick={() => setShowSubscribe(false)}
+              >
+                ×
+              </button>
+            </div>
+
+            {/* CONTENT */}
+            <div className="subscribe-content">
+
+              <Crown size={38} />
+
+              <h3>Never miss a Sheng drop.</h3>
+
+              <p>
+                Sunda email yako, tutakushow new sheng words ziki donjo!
+              </p>
+
+              <form
+                onSubmit={async (e) => {
+                  e.preventDefault();
+
+                  if (!email.trim()) return;
+
+                  try {
+                    setSubscribing(true);
+                    setSubscribeMessage("");
+
+                    await subscribeToShengDrops(
+                      email.trim().toLowerCase()
+                    );
+
+                    setSubscribeMessage(
+                      "Rada safi, We'll let you know when something new drops."
+                    );
+
+                    setEmail("");
+
+                  } catch (error: any) {
+                    console.error(error);
+
+                    if (error?.code === 409) {
+                      setSubscribeMessage(
+                        "Nakungam! You're already on the list 👀"
+                      );
+                    } else {
+                      setSubscribeMessage(
+                        "Something went wrong. Please try again."
+                      );
+                    }
+
+                  } finally {
+                    setSubscribing(false);
+                  }
+                }}
+              >
+
+                <div className="sheng-drop-georgia">
+                <input
+                  type="email"
+                  placeholder="Enter your email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
+
+                <button type="submit" disabled={subscribing}>
+                  {subscribing ? "Joining..." : "Keep me posted"}
+                </button>
+              </div>
+
+              </form>
+
+              {subscribeMessage && (
+                <p className="subscribe-message">
+                  {subscribeMessage}
+                </p>
+              )}
+
+              <small>
+                No spam. Just fresh Sheng drops and important updates.
+              </small>
+
+            </div>
+
+          </div>
+
+        </div>
+      )}
+
+      {showAbout && (
+      <div className="history-overlay">
+
+        <div className="history-panel">
+
+          {/* HEADER */}
+          <div className="history-header">
+            <div>
+              <h2>About Sheng</h2>
+              <span>Learn more about Sheng</span>
+            </div>
+
+            <button
+              type="button"
+              className="history-close"
+              onClick={() => setShowAbout(false)}
+            >
+              ×
+            </button>
+          </div>
+
+          {/* ABOUT CONTENT */}
+          <div className="about-content">
+
+            <h1>Sheng ni ya hood.</h1>
+
+            <p>
+              Sheng is always moving. New words drop, meanings switch,
+              and every hood has its own lingos.
+            </p>
+
+            <p>
+              <strong>Sheng AI</strong> is an AI powered Sheng translator
+              that helps turn English and Swahili into Sheng, so you can
+              understand the lingo without looking lost in the conversation.
+            </p>
+
+            <div className="about-warning">
+              <strong>But don't get too comfortable si unangam AI si wasee wa mtaa 😅</strong>
+
+              <p>
+                Sheng AI can make mistakes. Context matters, locations matter,
+                and sometimes the streets simply know better. Always
+                double-check important translations.
+              </p>
+            </div>
+
+            {/* TAGLINE */}
+            <div className="about-tagline">
+
+              <h3>
+                We don't teach the streets Sheng.
+              </h3>
+
+              <strong>
+                WE HELP YOU CATCH UP.
+              </strong>
+            </div>
+
+            {/* BLOCKSEVEN */}
+            <div className="about-footer">
+
+              <div className="blockseven-logo " >
+                <img 
+                  src={bseven}
+                  alt="b7"
+                  height={30}
+                                    className="iiindaaa"
+                />
+              </div>
+
+             <h2>
+              <a
+                href="https://blockseven.vercel.app"
+                className="belo"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                BLOCK SEVEN
+              </a>
+            </h2>
+
+              <span>ECOSYSTEMS</span>
+
+              <p>
+                Built with AI. Inspired by the streets.
+              </p>
+
+              <div className="copyright">
+                © 2026 BLOCKSEVEN ECOSYSTEMS. All rights reserved.
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+    )}
+                          
       {/* =====================================================
           QUICK SETTINGS BACKGROUND
           ===================================================== */}
@@ -587,10 +811,13 @@ const Home = () => {
           <button
             type="button"
             className="quick-settings-action"
+            onClick={() => {
+              setShowSubscribe(true);
+              setSubscribeMessage("");
+            }}
           >
             <Crown size={18} />
-
-            <span>Subscribe</span>
+            <span>Kaa Rada</span>
           </button>
 
         </div>
@@ -618,13 +845,16 @@ const Home = () => {
           </button>
 
           <button
-            type="button"
-            className="quick-settings-action"
-          >
-            <Info size={18} />
-
-            <span>About</span>
-          </button>
+          type="button"
+          className="quick-settings-action"
+          onClick={() => {
+            setReveal(0);
+            setShowAbout(true);
+          }}
+        >
+          <Info size={18} />
+          <span>About</span>
+        </button>
 
         </div>
 
@@ -737,6 +967,21 @@ const Home = () => {
           <div className="quick-settings-grip" />
         </div>
 
+        <button
+          className="quick-settings-toggle"
+          onClick={toggleQuickSettings}
+          aria-label="Toggle quick settings"
+        >
+          <ChevronDown
+            size={16}
+            className={
+              reveal > 0
+                ? "quick-settings-chevron-open"
+                : ""
+            }
+          />
+        </button>
+
 
         {/* ===================================================
             ORIGINAL HOME PAGE
@@ -779,6 +1024,8 @@ const Home = () => {
 
             */}
 
+            {/*hhshshhshs*/}
+
 
             {messages.length === 0 ? (
               <div className="landing">
@@ -813,6 +1060,8 @@ const Home = () => {
                   shineColor="#fff"
                 />
 
+               
+
               </div>
             ) : (
               <Chat
@@ -830,20 +1079,6 @@ const Home = () => {
               }`}
             >
 
-               <button
-                  className="quick-settings-toggle"
-                  onClick={toggleQuickSettings}
-                  aria-label="Toggle quick settings"
-                >
-                  <ChevronDown
-                    size={16}
-                    className={
-                      reveal > 0
-                        ? "quick-settings-chevron-open"
-                        : ""
-                    }
-                  />
-                </button>
               <div className="search-container">
 
                 <input

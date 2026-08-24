@@ -1,6 +1,6 @@
-import { databases, DATABASE_ID, SHENG_COLLECTION_ID } from "./config";
+import { databases, DATABASE_ID, SHENG_COLLECTION_ID, SUBSCRIBERS_COLLECTION_ID } from "./config";
 
-import { Query } from "appwrite";
+import { ID, Query } from "appwrite";
 
 export const searchWord = async (search: string) => {
 
@@ -46,4 +46,15 @@ export const getWordsByCategory = async (category: string) => {
   );
 
   return response.documents;
+};
+
+export const subscribeToShengDrops = async (email: string) => {
+  return await databases.createDocument(
+    DATABASE_ID,
+    SUBSCRIBERS_COLLECTION_ID,
+    ID.unique(),
+    {
+      email
+    }
+  );
 };
