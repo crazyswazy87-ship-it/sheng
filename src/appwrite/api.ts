@@ -1,4 +1,4 @@
-import { databases, DATABASE_ID, SHENG_COLLECTION_ID, SUBSCRIBERS_COLLECTION_ID } from "./config";
+import { databases, DATABASE_ID, SHENG_COLLECTION_ID, SUBSCRIBERS_COLLECTION_ID, SHENGTEZO_COLLECTION_ID } from "./config";
 
 import { ID, Query } from "appwrite";
 
@@ -57,4 +57,46 @@ export const subscribeToShengDrops = async (email: string) => {
       email
     }
   );
+};
+
+export const createShengSuggestion = async ({
+  word,
+  meaning,
+  example,
+}: {
+  word: string;
+  meaning: string;
+  example?: string;
+}) => {
+  const cleanWord = word.trim();
+  const cleanMeaning = meaning.trim();
+  const cleanExample = example?.trim() || "";
+
+  if (!cleanWord || !cleanMeaning) {
+    throw new Error("Word and meaning are required.");
+  }
+
+  try {
+    const suggestion = await databases.createDocument(
+      DATABASE_ID,
+      SHENGTEZO_COLLECTION_ID,
+      ID.unique(),
+      {
+        word: cleanWord,
+        meaning: cleanMeaning,
+        example: cleanExample,
+        status: "pending",
+      }
+    );
+
+    return suggestion;
+
+  } catch (error) {
+    console.error(
+      "Failed to submit Sheng suggestion:",
+      error
+    );
+
+    throw error;
+  }
 };

@@ -12,5 +12,7 @@ export const DATABASE_ID = '696c7dc0000d7998f391'
   
 export const SUBSCRIBERS_COLLECTION_ID = 'waitlist'
 
-export const SHENG_COLLECTION_ID = 'sheng' 
+export const SHENG_COLLECTION_ID = 'sheng'
+
+export const SHENGTEZO_COLLECTION_ID = 'shengtezo'
   

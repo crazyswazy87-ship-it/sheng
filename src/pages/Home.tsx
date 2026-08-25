@@ -8,7 +8,9 @@ import {
 } from "react";
 
 import {
+  BookPlus,
   ChevronDown,
+  ScrollText,
 } from "lucide-react";
 
 import bseven from "../../public/assets/images/bseven-white.png"
@@ -33,6 +35,7 @@ import Shuffle from "../components/Shuffle";
 import {
   getWordsByCategory,
   subscribeToShengDrops,
+  createShengSuggestion,
 } from "../appwrite/api";
 
 
@@ -213,11 +216,24 @@ const Home = () => {
   const [placeholder, setPlaceholder] = useState("");
 
   const [query, setQuery] = useState("");
+
+
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [history, setHistory] = useState<ChatHistory[]>([]);
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [showHistory, setShowHistory] = useState(false);
   const [showAbout, setShowAbout] = useState(false);
+  const [showTermsOfUse, setShowTermsOfUse] = useState(false);
+
+
+  const [showSuggestSheng, setShowSuggestSheng] = useState(false);
+
+  const [suggestionWord, setSuggestionWord] = useState("");
+  const [suggestionMeaning, setSuggestionMeaning] = useState("");
+  const [suggestionExample, setSuggestionExample] = useState("");
+
+  const [submittingSuggestion, setSubmittingSuggestion] = useState(false);
+  const [suggestionMessage, setSuggestionMessage] = useState("");
 
   /* =========================================================
     LOAD HISTORY FROM LOCAL STORAGE
@@ -263,7 +279,17 @@ const Home = () => {
   }, []);
 
   const [activeCategory, setActiveCategory] =
-    useState("all");
+  useState("all");
+
+  const categoryCarouselRef =
+    useRef<HTMLDivElement>(null);
+
+  const [carouselPaused, setCarouselPaused] =
+    useState(false);
+
+  const resumeCarouselTimer =
+    useRef<ReturnType<typeof setTimeout> | null>(null);
+    
 
   const loadCategoryWords = async (
     category: string
@@ -292,6 +318,63 @@ const Home = () => {
       console.error(err);
     }
   };
+
+  /* =========================================================
+   CATEGORY CAROUSEL AUTO SLIDE
+   ========================================================= */
+
+useEffect(() => {
+  if (carouselPaused) return;
+
+  const carousel = categoryCarouselRef.current;
+
+  if (!carousel) return;
+
+  const slideInterval = setInterval(() => {
+    const cards =
+      carousel.querySelectorAll<HTMLElement>(
+        ".category-card"
+      );
+
+    if (!cards.length) return;
+
+    const currentScroll = carousel.scrollLeft;
+
+    // Find the next card after the current scroll position
+    let nextCard: HTMLElement | null = null;
+
+    for (const card of cards) {
+      if (
+        card.offsetLeft >
+        currentScroll + 5
+      ) {
+        nextCard = card;
+        break;
+      }
+    }
+
+    // If we're at the end, smoothly return to the beginning
+    if (!nextCard) {
+      carousel.scrollTo({
+        left: 0,
+        behavior: "smooth",
+      });
+
+      return;
+    }
+
+    carousel.scrollTo({
+      left:
+        nextCard.offsetLeft -
+        5,
+      behavior: "smooth",
+    });
+  }, 3500);
+
+  return () => {
+    clearInterval(slideInterval);
+  };
+}, [carouselPaused]);
 
   useEffect(() => {
     if (!shengWords.length) return;
@@ -507,6 +590,19 @@ const Home = () => {
     { id: "greetings", icon: "👋", label: "Greetings" },
     { id: "compliments", icon: "🌟", label: "Compliments" },
   ];
+
+  const pauseCarousel = () => {
+  setCarouselPaused(true);
+
+  if (resumeCarouselTimer.current) {
+    clearTimeout(resumeCarouselTimer.current);
+  }
+
+  resumeCarouselTimer.current =
+    setTimeout(() => {
+      setCarouselPaused(false);
+    }, 4000);
+};
 
   return (
     <div className="quick-settings-page">
@@ -802,7 +898,461 @@ const Home = () => {
 
       </div>
     )}
-                          
+
+    {showTermsOfUse && (
+      <div className="history-overlay">
+
+        <div className="history-panel terms-panel">
+
+          {/* HEADER */}
+          <div className="history-header">
+
+            <div>
+              <h2>Terms of Use</h2>
+
+              <span>
+                Sheng
+              </span>
+            </div>
+
+            <button
+              type="button"
+              className="history-close"
+              onClick={() => setShowTermsOfUse(false)}
+            >
+              ×
+            </button>
+
+          </div>
+
+
+          {/* TERMS CONTENT */}
+          <div className="terms-content">
+
+            <span className="terms-updated">
+              Last updated: August 2026
+            </span>
+
+
+            <h3>Welcome to ShengAI</h3>
+
+            <p>
+              ShengAI is a platform created to help people
+              discover, understand, and explore Sheng and
+              its evolving vocabulary.
+            </p>
+
+            <p>
+              By using ShengAI, you agree to these Terms of
+              Use. If you do not agree with these terms,
+              please do not use the service.
+            </p>
+
+
+            <h3>1. About ShengAI</h3>
+
+            <p>
+              ShengAI provides information about Sheng words,
+              phrases, meanings, translations, and usage.
+            </p>
+
+            <p>
+              Our platform uses a dedicated Sheng language
+              database and an educated language module
+              developed to process and provide Sheng-related
+              information.
+            </p>
+
+            <p>
+              Because Sheng is constantly evolving, meanings,
+              pronunciations, and usage may differ between
+              communities, locations, and generations.
+            </p>
+
+
+            <h3>2. Accuracy of Information</h3>
+
+            <p>
+              We aim to provide accurate and useful Sheng
+              information. However, we cannot guarantee that
+              every definition, translation, example, or
+              explanation will always be completely accurate
+              or current.
+            </p>
+
+            <p>
+              Sheng changes with culture, location, trends,
+              and everyday usage. Users should consider
+              context when interpreting words and expressions.
+            </p>
+
+
+            <h3>3. User Contributions</h3>
+
+            <p>
+              ShengAI may allow users to suggest new Sheng
+              words, phrases, meanings, or examples.
+            </p>
+
+            <p>
+              By submitting a contribution, you confirm that
+              the information is submitted in good faith and
+              that you have the right to submit the content.
+            </p>
+
+            <p>
+              Submitted contributions may be reviewed before
+              being added to our database.
+            </p>
+
+            <p>
+              We reserve the right to accept, modify, reject,
+              or remove any contribution.
+            </p>
+
+
+            <h3>4. Respect for Sheng and Its Communities</h3>
+
+            <p>
+              Sheng belongs to the communities and speakers
+              who create, use, and evolve it.
+            </p>
+
+            <p>
+              ShengAI does not claim ownership of Sheng as a
+              language. Our database, software, organization
+              of information, and platform remain the property
+              of ShengAI or their respective owners.
+            </p>
+
+
+            <h3>5. Acceptable Use</h3>
+
+            <p>
+              You agree not to use ShengAI to:
+            </p>
+
+            <ul>
+              <li>Break applicable laws.</li>
+              <li>Harass, threaten, or harm others.</li>
+              <li>
+                Submit malicious or intentionally misleading
+                information.
+              </li>
+              <li>
+                Attempt to disrupt the platform.
+              </li>
+              <li>
+                Gain unauthorized access to our systems or
+                database.
+              </li>
+              <li>
+                Copy or reproduce our database or platform
+                without permission.
+              </li>
+            </ul>
+
+
+            <h3>6. Our Database and Content</h3>
+
+            <p>
+              The ShengAI database is a core part of the
+              platform.
+            </p>
+
+            <p>
+              You may use information provided through ShengAI
+              for personal, educational, and general
+              informational purposes.
+            </p>
+
+            <p>
+              You may not systematically copy, scrape,
+              reproduce, redistribute, or commercially exploit
+              our database or a substantial portion of its
+              contents without written permission.
+            </p>
+
+
+            <h3>7. Service Availability</h3>
+
+            <p>
+              We work to keep ShengAI available and reliable,
+              but we do not guarantee that the platform will
+              always be available or free from errors.
+            </p>
+
+            <p>
+              We may update, improve, modify, suspend, or
+              discontinue features when necessary.
+            </p>
+
+
+            <h3>8. Intellectual Property</h3>
+
+            <p>
+              The ShengAI name, branding, interface, software,
+              database structure, original content, designs,
+              and other platform materials are protected by
+              applicable intellectual property laws.
+            </p>
+
+            <p>
+              Nothing in these Terms gives you ownership of
+              those materials.
+            </p>
+
+
+            <h3>9. Privacy</h3>
+
+            <p>
+              Your use of ShengAI may involve the collection
+              of information necessary to operate and improve
+              the service.
+            </p>
+
+            <p>
+              Our handling of personal information is governed
+              by our Privacy Policy.
+            </p>
+
+
+            <h3>10. Changes to These Terms</h3>
+
+            <p>
+              We may update these Terms of Use when necessary.
+              When changes are made, the updated version will
+              be made available through ShengAI.
+            </p>
+
+            <p>
+              Your continued use of the platform after changes
+              are published means you accept the updated Terms.
+            </p>
+
+
+            <h3>11. Contact</h3>
+
+            <p>
+              If you have questions, suggestions, or concerns
+              regarding these Terms or ShengAI, please contact
+              the ShengAI team through the contact information
+              provided on the platform.
+            </p>
+
+
+            <div className="terms-footer">
+
+              <strong>
+                By using ShengAI, you acknowledge that you
+                have read, understood, and agreed to these
+                Terms of Use.
+              </strong>
+
+              <span>
+                Sheng is always moving. We help you catch up.
+              </span>
+              <div className="copyright">
+                © 2026 BLOCKSEVEN ECOSYSTEMS. All rights reserved.
+              </div>
+
+            </div>
+      
+          </div>
+
+        </div>
+
+      </div>
+    )}
+
+    {showSuggestSheng && (
+    <div className="history-overlay">
+
+      <div className="history-panel suggest-sheng-panel">
+
+        {/* HEADER */}
+        <div className="history-header">
+
+          <div>
+            <h2>Suggest New Sheng</h2>
+
+            <span>
+              Help grow the Sheng dictionary
+            </span>
+          </div>
+
+          <button
+            type="button"
+            className="history-close"
+            onClick={() => {
+              setShowSuggestSheng(false);
+              setSuggestionMessage("");
+            }}
+          >
+            ×
+          </button>
+
+        </div>
+
+
+        {/* CONTENT */}
+        <form
+          className="suggest-sheng-content"
+          onSubmit={async (e) => {
+            e.preventDefault();
+
+            const word = suggestionWord.trim();
+            const meaning = suggestionMeaning.trim();
+            const example = suggestionExample.trim();
+
+            if (!word) {
+              setSuggestionMessage(
+                "Enter the Sheng word first."
+              );
+              return;
+            }
+
+            if (!meaning) {
+              setSuggestionMessage(
+                "Tell us what the word means."
+              );
+              return;
+            }
+
+            try {
+
+              setSubmittingSuggestion(true);
+              setSuggestionMessage("");
+
+              await createShengSuggestion({
+                word,
+                meaning,
+                example,
+              });
+
+              // Clear form
+              setSuggestionWord("");
+              setSuggestionMeaning("");
+              setSuggestionExample("");
+
+              setSuggestionMessage(
+                "Safi! Your Sheng word has been submitted for review."
+              );
+
+            } catch (error) {
+
+              console.error(
+                "Sheng suggestion error:",
+                error
+              );
+
+              setSuggestionMessage(
+                "Something went wrong. Please try again."
+              );
+
+            } finally {
+
+              setSubmittingSuggestion(false);
+
+            }
+          }}
+        >
+
+          {/* WORD */}
+          <div className="suggest-field">
+
+            <label>
+              Sheng word
+            </label>
+
+            <input
+              type="text"
+              value={suggestionWord}
+              onChange={(e) =>
+                setSuggestionWord(e.target.value)
+              }
+              placeholder="Enter a Sheng word"
+              autoComplete="off"
+              autoCapitalize="none"
+            />
+
+          </div>
+
+
+          {/* MEANING */}
+          <div className="suggest-field">
+          <label>
+            related word
+          </label>
+
+          <textarea
+            value={suggestionMeaning}
+            onChange={(e) =>
+              setSuggestionMeaning(e.target.value)
+            }
+            placeholder="Enter a word in English, Swahili or Sheng"
+            rows={3}
+          />
+
+          </div>
+
+
+          {/* EXAMPLE */}
+          <div className="suggest-field">
+
+            <label>
+              Example
+              <span>Optional</span>
+            </label>
+
+            <textarea
+              value={suggestionExample}
+              onChange={(e) =>
+                setSuggestionExample(e.target.value)
+              }
+              placeholder="Show us how the word is used..."
+              rows={3}
+            />
+
+          </div>
+
+
+          {/* MESSAGE */}
+          {suggestionMessage && (
+            <div className="suggestion-message">
+              {suggestionMessage}
+            </div>
+          )}
+
+
+          {/* SUBMIT */}
+          <button
+            type="submit"
+            className="suggest-submit-btn"
+            disabled={
+              submittingSuggestion ||
+              !suggestionWord.trim() ||
+              !suggestionMeaning.trim()
+            }
+          >
+            {submittingSuggestion
+              ? "Submitting..."
+              : "Suggest Word"}
+          </button>
+
+
+          <small className="suggestion-note">
+            Your suggestion will be reviewed before
+            being added to the Sheng dictionary.
+          </small>
+
+        </form>
+
+      </div>
+
+    </div>
+  )}
+                              
       {/* =====================================================
           QUICK SETTINGS BACKGROUND
           ===================================================== */}
@@ -820,7 +1370,7 @@ const Home = () => {
 
           <button
             type="button"
-            className="quick-settings-action quick-settings-action-active"
+            className="quick-settings-action quick-settings-action-active row-one"
             onClick={newChat}
           >
             <MessageSquarePlus size={18} />
@@ -829,8 +1379,9 @@ const Home = () => {
 
           <button
             type="button"
-            className="quick-settings-action"
+            className="quick-settings-action row-one"
             onClick={() => {
+              setReveal(0);
               setShowSubscribe(true);
               setSubscribeMessage("");
             }}
@@ -841,7 +1392,7 @@ const Home = () => {
 
         </div>
 
-
+         
         {/* ROW 2 */}
         <div
           className="quick-settings-tiles-row"
@@ -856,7 +1407,7 @@ const Home = () => {
 
           <button
             type="button"
-            className="quick-settings-action"
+            className="quick-settings-action row-two"
             onClick={openHistory}
           >
             <History size={18} />
@@ -865,7 +1416,7 @@ const Home = () => {
 
           <button
           type="button"
-          className="quick-settings-action"
+          className="quick-settings-action row-two"
           onClick={() => {
             setReveal(0);
             setShowAbout(true);
@@ -876,68 +1427,57 @@ const Home = () => {
         </button>
 
         </div>
-
-      
-
         
+        {/* ROW 3 */}
         <div
-          className="quick-settings-notification"
+          className="quick-settings-tiles-row"
           style={{
             opacity: clamp(
-              progress * 2.4 - 0.3,
+              progress * 2.4 - 0.15,
               0,
               1
             ),
           }}
         >
-       
 
+          <button
+          type="button"
+          className="quick-settings-action row-three"
+          onClick={() => {
+            setReveal(0);
+            setShowSuggestSheng(true);
+            setSuggestionMessage("");
+          }}
+        >
+          <BookPlus size={18} />
+          <span>Suggest New Sheng</span>
+        </button>
 
-        <div className="category-carousel">
-          {categories.map((category) => (
-            <button
-              key={category.id}
-              className={`category-card ${
-                activeCategory ===
-                category.id
-                  ? "active"
-                  : ""
-              }`}
-              onClick={() => {
-                setActiveCategory(
-                  category.id
-                );
-
-                loadCategoryWords(
-                  category.id
-                );
-              }}
-            >
-              <span className="emoji">
-                {category.icon}
-              </span>
-
-              <span>
-                {category.label}
-              </span>
-            </button>
-          ))}
+          <button
+          type="button"
+          className="quick-settings-action row-three"
+          onClick={() => {
+            setReveal(0);
+            setShowTermsOfUse(true);
+          }}
+        >
+          <ScrollText size={18} />
+          <span>Terms Of Use</span>
+        </button>
 
         </div>
 
-        </div>
-
-         {activeCategory === "all" && (
+        <p>
+          
           <ShinyText
-            text=" Select a category above to get suggested Sheng words on your keypad"
-            className="category-hint"
-            speed={1}
+            text="A Block Seven Creation"
+            className="ans"
+            speed={2.9}
             shineColor="#fff"
           />
-        )}
 
-
-
+        </p>
+        
       </div>
 
 
@@ -1082,9 +1622,63 @@ const Home = () => {
                   shineColor="#fff"
                 />
 
-               
 
-              </div>
+                <div
+                  ref={categoryCarouselRef}
+                  className={`category-carousel ${
+                    carouselPaused
+                      ? "category-carousel-paused"
+                      : ""
+                  }`}
+                  onMouseEnter={() => {
+                    setCarouselPaused(true);
+                  }}
+                  onMouseLeave={() => {
+                    setCarouselPaused(false);
+                  }}
+                  onPointerDown={() => {
+                    setCarouselPaused(true);
+                  }}
+                  onPointerUp={() => {
+                    pauseCarousel();
+                  }}
+                  onPointerCancel={() => {
+                    pauseCarousel();
+                  }}
+                  onWheel={() => {
+                    pauseCarousel();
+                  }}
+                >
+                  {categories.map((category) => (
+                  <button
+                    key={category.id}
+                    className={`category-card ${
+                      activeCategory === category.id
+                        ? "active"
+                        : ""
+                    }`}
+                    onClick={() => {
+                      pauseCarousel();
+
+                      setActiveCategory(category.id);
+
+                      loadCategoryWords(category.id);
+                    }}
+                  >
+                    <span className="emoji">
+                      {category.icon}
+                    </span>
+
+                    <span>
+                      {category.label}
+                    </span>
+                  </button>
+                ))}
+
+                </div>
+
+                </div>
+
             ) : (
               <Chat
                 messages={messages}
@@ -1105,7 +1699,7 @@ const Home = () => {
             }`}
           >
             <div className="b2x-inner">
-
+            
               {/* =====================================================
                   INPUT / SEARCH ROW
                   ===================================================== */}
