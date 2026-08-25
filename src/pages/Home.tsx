@@ -1,4 +1,12 @@
-import { useCallback, useEffect, useRef, useState, type JSX, type ReactNode } from "react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type JSX,
+  type ReactNode,
+} from "react";
+
 import {
   ChevronDown,
 } from "lucide-react";
@@ -12,6 +20,8 @@ import {
   Info,
 } from "lucide-react";
 
+
+
 import Aurora from "../components/Aurora";
 import Strands from "../components/Strands";
 import Chat from "../components/shared/Chat";
@@ -24,7 +34,6 @@ import {
   getWordsByCategory,
   subscribeToShengDrops,
 } from "../appwrite/api";
-
 
 
 const MAX_REVEAL = 230;
@@ -92,6 +101,8 @@ const Home = () => {
   const startY = useRef(0);
   const startReveal = useRef(0);
   const pointerId = useRef<number | null>(null);
+
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   const onPointerDown = useCallback(
     (e: React.PointerEvent<HTMLDivElement>) => {
@@ -303,95 +314,103 @@ const Home = () => {
   }, []);
 
 
-  const handleSearch = async () => {
-    if (!query.trim()) return;
+  const handleSearch = async (input?: string) => {
+  const currentQuery = (input ?? query).trim();
 
-    const currentQuery = query.trim();
+  if (!currentQuery) return;
 
-    const userId = Date.now();
-    const aiId = userId + 1;
+  // Remove focus from the input.
+  // This closes the mobile keyboard after submitting.
+  searchInputRef.current?.blur();
 
-    const userMessage: ChatMessage = {
-      id: userId,
-      role: "user",
-      content: currentQuery,
-    };
+  // Also hide the virtual keyboard on mobile browsers
+  if (document.activeElement instanceof HTMLElement) {
+    document.activeElement.blur();
+  }
 
-    const loadingMessage: ChatMessage = {
-      id: aiId,
-      role: "assistant",
-      content: null,
-      loading: true,
-    };
+  const userId = Date.now();
+  const aiId = userId + 1;
 
-    const updatedMessages = [
+  const userMessage: ChatMessage = {
+    id: userId,
+    role: "user",
+    content: currentQuery,
+  };
+
+  const loadingMessage: ChatMessage = {
+    id: aiId,
+    role: "assistant",
+    content: null,
+    loading: true,
+  };
+
+  const updatedMessages = [
+    ...messages,
+    userMessage,
+    loadingMessage,
+  ];
+
+  setMessages(updatedMessages);
+
+  const activeConversationId =
+    conversationId || crypto.randomUUID();
+
+  setConversationId(activeConversationId);
+
+  try {
+    const response = await search(currentQuery);
+
+    const finalMessages: ChatMessage[] = [
       ...messages,
       userMessage,
-      loadingMessage,
+      {
+        id: aiId,
+        role: "assistant",
+        content: response,
+        loading: false,
+      },
     ];
 
-    setMessages(updatedMessages);
+    setMessages(finalMessages);
 
-    // Create an ID for this conversation if it doesn't have one
-    const activeConversationId =
-      conversationId || crypto.randomUUID();
+    const conversation: ChatHistory = {
+      id: activeConversationId,
+      title: currentQuery.slice(0, 50),
+      messages: finalMessages,
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+    };
 
-    setConversationId(activeConversationId);
+    saveHistory(conversation);
+  } catch (error) {
+    console.error("Search failed:", error);
 
-    try {
-      const response = await search(currentQuery);
+    const finalMessages: ChatMessage[] = [
+      ...messages,
+      userMessage,
+      {
+        id: aiId,
+        role: "assistant",
+        content: null,
+        loading: false,
+      },
+    ];
 
-      const finalMessages: ChatMessage[] = [
-        ...messages,
-        userMessage,
-        {
-          id: aiId,
-          role: "assistant",
-          content: response,
-          loading: false,
-        },
-      ];
+    setMessages(finalMessages);
 
-      setMessages(finalMessages);
+    const conversation: ChatHistory = {
+      id: activeConversationId,
+      title: currentQuery.slice(0, 50),
+      messages: finalMessages,
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+    };
 
-      const conversation: ChatHistory = {
-        id: activeConversationId,
-        title: currentQuery.slice(0, 50),
-        messages: finalMessages,
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-      };
+    saveHistory(conversation);
+  }
 
-      saveHistory(conversation);
-    } catch (error) {
-      console.error("Search failed:", error);
-
-      const finalMessages: ChatMessage[] = [
-        ...messages,
-        userMessage,
-        {
-          id: aiId,
-          role: "assistant",
-          content: null,
-          loading: false,
-        },
-      ];
-
-      setMessages(finalMessages);
-
-      const conversation: ChatHistory = {
-        id: activeConversationId,
-        title: currentQuery.slice(0, 50),
-        messages: finalMessages,
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-      };
-
-      saveHistory(conversation);
-    }
-
-    setQuery("");
-  };
+  setQuery("");
+};
 
   const openHistory = () => {
     setReveal(0);
@@ -1042,6 +1061,8 @@ const Home = () => {
                   duration={0.25}
                 />
 
+                {/** 
+
                 <button className="b1x">
                   <div className="angel">
                     <div className="io">S</div>
@@ -1052,6 +1073,7 @@ const Home = () => {
                     <div className="smm">AI</div>
                   </div>
                 </button>
+                */}
 
                 <ShinyText
                   text="Your AI companion for decoding Kenya's fastest changing language"
@@ -1072,64 +1094,96 @@ const Home = () => {
 
 
             <div
-              className={`georgia ${
-                messages.length === 0
-                  ? "georgia-centered"
-                  : "georgia-bottom"
-              }`}
-            >
+            className={`b2x ${
+              messages.length === 0
+                ? "b2x-centered"
+                : "b2x-bottom"
+            } ${
+              query.trim().length > 0
+                ? "b2x-active"
+                : ""
+            }`}
+          >
+            <div className="b2x-inner">
 
-              <div className="search-container">
+              {/* =====================================================
+                  INPUT / SEARCH ROW
+                  ===================================================== */}
+
+              <div className="b2x-search-container">
 
                 <input
-                  className="shengtezo"
-                  value={query}
-                  placeholder={`Search "${placeholder}"`}
-                  onChange={(e) =>
-                    setQuery(e.target.value)
+                ref={searchInputRef}
+                className="b2x-input"
+                value={query}
+                placeholder={`Search "${placeholder}"`}
+                onChange={(e) => setQuery(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+
+                    if (!query.trim()) return;
+
+                    // Immediately close mobile keyboard
+                    searchInputRef.current?.blur();
+
+                    handleSearch(query);
                   }
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      handleSearch();
-                    }
-                  }}
-                />
+                }}
+              />
 
                 <button
-                  type="button"
-                  className="search-btn"
-                  onClick={handleSearch}
-                  disabled={!query.trim()}
-                >
-                  <Strands
-                    colors={[
-                      "#7cff67",
-                      "#ff2727",
-                      "#5798f4",
-                    ]}
-                    count={3}
-                    speed={0.5}
-                    amplitude={1.6}
-                    waviness={1}
-                    thickness={1.4}
-                    glow={2.6}
-                    taper={4}
-                    spread={1}
-                    intensity={0.6}
-                    saturation={3}
-                    opacity={1}
-                    scale={1.4}
-                    glass
-                    refraction={1}
-                    dispersion={1}
-                    glassSize={0.95}
-                    hueShift={0}
-                  />
-                </button>
+            type="button"
+            className={`b2x-search-btn ${
+              query.trim()
+                ? "b2x-search-btn-active"
+                : ""
+            }`}
+            onClick={() => {
+              if (!query.trim()) return;
+
+              searchInputRef.current?.blur();
+              handleSearch(query);
+            }}
+            disabled={!query.trim()}
+            aria-label="Search"
+          >
+            <Strands
+              colors={[
+                "#7cff67",
+                "#ff2727",
+                "#5798f4",
+              ]}
+              count={3}
+              speed={0.5}
+              amplitude={1.6}
+              waviness={1}
+              thickness={1.4}
+              glow={2.6}
+              taper={4}
+              spread={1}
+              intensity={0.6}
+              saturation={3}
+              opacity={1}
+              scale={1.4}
+              glass
+              refraction={1}
+              dispersion={1}
+              glassSize={0.95}
+              hueShift={0}
+            />
+          </button>
 
               </div>
 
             </div>
+          </div>
+             
+
+            
+
+          
+            
 
           </div>
 

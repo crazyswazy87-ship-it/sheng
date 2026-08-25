@@ -1491,6 +1491,320 @@ color: rgb(0, 255, 0);;
   transform: scale(1.0);
 }
 
+.b2x {
+  position: fixed;
+
+  left: 50%;
+  bottom: 20px;
+
+  transform: translateX(-50%);
+
+  width: min(500px, 85%);
+
+  z-index: 9999;
+
+  box-sizing: border-box;
+
+  padding: 1px;
+
+  border-radius: 29px;
+
+  background: rgba(15, 15, 18, 0.96);
+
+  border: 1px solid rgba(255, 255, 255, 0.056);
+
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+
+  box-shadow:
+    0 0 40px rgba(0, 0, 0, 0.5),
+    0 0 100px rgba(0, 255, 0, 0.05);
+
+  transition:
+    top 0.35s ease,
+    bottom 0.35s ease,
+    width 0.25s ease,
+    box-shadow 0.35s ease,
+    border-color 0.35s ease;
+}
+
+
+/* =========================================================
+   SAME POSITIONING BEHAVIOR AS GEORGIA
+   ========================================================= */
+
+.b2x-centered {
+  top: 60%;
+  bottom: auto;
+
+  transform: translate(-50%, -50%);
+}
+
+
+.b2x-bottom {
+  top: auto;
+  bottom: 20px;
+
+  transform: translateX(-50%);
+}
+
+
+/* =========================================================
+   GLOW WHEN SEARCHING / TYPING
+   ========================================================= */
+
+.b2x-active {
+
+  box-shadow:
+    0 0 25px rgba(124, 255, 103, 0.08),
+    0 0 50px rgba(87, 152, 244, 0.08),
+    0 0 100px rgba(255, 39, 39, 0.04);
+}
+
+
+@property --angle{
+  syntax: "<angle>"; 
+  initial-value:0deg;
+  inherits:false ;
+
+}
+
+.b2x-active::after, .b2x-active::before{
+  content: '';
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  background-image: conic-gradient(from var(--angle), #fff, black,white,red,white,lightgreen,#fff, black,white,red,white,lightgreen );
+  top: 50%;
+  left: 50%;
+  translate: -50% -50% ;
+  z-index: -1;
+  padding: 3px;
+  border-radius: 30px;
+  animation: 4s spin linear infinite;
+}
+
+.b2x-active::before{
+  filter: blur(1.3rem);
+  opacity: 0.5;
+}
+@keyframes spin{
+  from{
+    --angle:0deg;
+  }
+  to{
+    --angle:360deg;
+  }
+}
+
+
+
+
+/* =========================================================
+   INNER
+   ========================================================= */
+
+.b2x-inner {
+  width: 100%;
+
+  display: flex;
+  flex-direction: column;
+
+  box-sizing: border-box;
+
+  overflow: hidden;
+
+  border-radius: 25px;
+
+  background: black;
+}
+
+
+/* =========================================================
+   SEARCH ROW
+   ========================================================= */
+
+.b2x-search-container {
+  width: 100%;
+
+  height: 60px;
+
+  display: flex;
+  align-items: center;
+
+  box-sizing: border-box;
+
+  padding: 10px 12px;
+
+  gap: 10px;
+}
+
+
+/* =========================================================
+   INPUT
+   ========================================================= */
+
+.b2x-input {
+  flex: 1;
+
+  min-width: 0;
+
+  height: 44px;
+
+  box-sizing: border-box;
+
+  padding: 0 16px;
+
+  border: none;
+  outline: none;
+
+  border-radius: 999px;
+
+  background: rgba(114, 113, 113, 0.137);
+
+  color: #f4f4f5;
+
+  font-size: 15px;
+
+  transition:
+    background 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+
+.b2x-input::placeholder {
+  color: #73737a;
+}
+
+
+.b2x-input:focus {
+  background: rgba(255, 255, 255, 0.07);
+
+  box-shadow:
+    0 0 0 1px rgba(124, 255, 103, 0.08);
+}
+
+
+/* =========================================================
+   SEARCH BUTTON
+   ========================================================= */
+
+.b2x-search-btn {
+  flex-shrink: 0;
+
+  width: 46px;
+  height: 46px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0;
+
+  border: none;
+
+  border-radius: 50%;
+
+  background: rgba(255, 255, 255, 0.06);
+
+  overflow: hidden;
+
+  cursor: pointer;
+
+  opacity: 0.7;
+
+  transition:
+    transform 0.2s ease,
+    opacity 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+
+.b2x-search-btn-active {
+  opacity: 1;
+
+  box-shadow:
+    0 0 18px rgba(124, 255, 103, 0.15);
+}
+
+
+.b2x-search-btn-active:hover {
+  transform: scale(1.06);
+}
+
+
+.b2x-search-btn:disabled {
+  cursor: default;
+  opacity: 0.55;
+}
+
+
+/* =========================================================
+   THINKING BAR
+   ========================================================= */
+
+.b2x .tib-bar {
+  width: 100%;
+
+  min-height: 75px;
+
+  box-sizing: border-box;
+
+  display: flex;
+  flex-direction: column;
+
+  justify-content: space-between;
+
+  padding: 10px 14px;
+
+  background: rgba(17, 17, 19, 0.96);
+
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+
+/* =========================================================
+   TIB TOP
+   ========================================================= */
+
+.b2x .tib-top-row {
+  width: 100%;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+
+.b2x .tib-placeholder {
+  color: #85858b;
+
+  font-size: 15px;
+
+  user-select: none;
+}
+
+
+/* =========================================================
+   TIB BOTTOM
+   ========================================================= */
+
+.b2x .tib-bottom-row {
+  width: 100%;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+
+.b2x .tib-left-controls,
+.b2x .tib-right-controls {
+  display: flex;
+  align-items: center;
+
+  gap: 6px;
+}
 
 .b1x{
   background-color: black;
@@ -2390,3 +2704,913 @@ color: rgb(0, 255, 0);;
   opacity: 0.6;
 }
 
+/*AICOMMANDBAR*/
+/* =========================================================
+   AI COMMAND BAR
+   ========================================================= */
+
+.ai-command-page {
+  min-height: 560px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 24px;
+  
+  position: relative;
+  overflow: hidden;
+  padding: 40px 24px;
+  width: 100%;
+  background: #aaaad4;
+  font-family: sans-serif;
+  box-sizing: border-box;
+}
+
+/* =========================================================
+   AMBIENT BACKGROUND
+   ========================================================= */
+
+.ai-command-ambient {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.ai-command-glow-indigo {
+  position: absolute;
+  left: 50%;
+  top: 33.333%;
+  width: 36rem;
+  height: 18rem;
+  transform: translateX(-50%);
+  border-radius: 999px;
+  background: rgba(79, 70, 229, 0.1);
+  filter: blur(100px);
+}
+
+.ai-command-glow-amber {
+  position: absolute;
+  right: 40px;
+  bottom: 40px;
+  width: 14rem;
+  height: 14rem;
+  border-radius: 999px;
+  background: rgba(245, 158, 11, 0.1);
+  filter: blur(90px);
+}
+
+/* =========================================================
+   MAIN WIDTH
+   ========================================================= */
+
+.ai-command-messages,
+.ai-command-container {
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  max-width: 36rem;
+}
+
+.ai-command-messages {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* =========================================================
+   CHAT BUBBLES
+   ========================================================= */
+
+.chat-bubble {
+  margin-left: auto;
+  max-width: 80%;
+  padding: 8px 16px;
+  border-radius: 16px;
+  border-bottom-right-radius: 2px;
+  background: rgba(255, 255, 255, 0.06);
+  color: #e4e4e7;
+  font-size: 13px;
+  backdrop-filter: blur(8px);
+  animation: fadeUp 220ms ease-out;
+}
+
+/* =========================================================
+   QUICK ACTIONS
+   ========================================================= */
+
+.quick-actions-wrapper {
+  display: flex;
+  justify-content: center;
+  overflow: hidden;
+  margin-bottom: 8px;
+  transition:
+    max-height 300ms ease-out,
+    opacity 300ms ease-out,
+    transform 300ms ease-out;
+}
+
+.quick-actions-visible {
+  max-height: 48px;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.quick-actions-hidden {
+  max-height: 0;
+  opacity: 0;
+  transform: translateY(8px);
+}
+
+.quick-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+  background: rgba(13, 13, 22, 0.9);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(16px);
+}
+
+.action-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: #a1a1aa;
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    background 180ms ease,
+    color 180ms ease;
+}
+
+.action-chip:hover {
+  background: rgba(255, 255, 255, 0.07);
+  color: #f4f4f5;
+}
+
+.action-chip-active {
+  background: rgba(99, 102, 241, 0.2);
+  color: #a5b4fc;
+}
+
+.action-chip-label {
+  display: inline;
+}
+
+/* =========================================================
+   SUGGESTED PROMPTS
+   ========================================================= */
+
+.suggested-prompts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 8px;
+  padding: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  background: rgba(13, 13, 22, 0.95);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(16px);
+  animation: fadeUpFast 180ms ease-out;
+}
+
+.suggested-prompts-title {
+  width: 100%;
+  padding-bottom: 4px;
+  color: #71717a;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.prompt-chip {
+  padding: 6px 12px;
+  border: 1px solid rgba(129, 140, 248, 0.2);
+  border-radius: 999px;
+  background: rgba(99, 102, 241, 0.1);
+  color: #c7d2fe;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 180ms ease;
+}
+
+.prompt-chip:hover {
+  background: rgba(99, 102, 241, 0.2);
+}
+
+/* =========================================================
+   GLOWING BORDER
+   ========================================================= */
+
+.glow-border {
+  position: relative;
+  padding: 1.5px;
+  border-radius: 28px;
+  transition:
+    box-shadow 300ms ease,
+    background 300ms ease;
+}
+
+.glow-idle {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.glow-active {
+  background: linear-gradient(
+    135deg,
+    rgba(99, 102, 241, 0.9),
+    rgba(168, 85, 247, 0.7),
+    rgba(245, 158, 11, 0.5)
+  );
+  box-shadow:
+    0 0 20px rgba(99, 102, 241, 0.12),
+    0 0 50px rgba(99, 102, 241, 0.06);
+}
+
+/* =========================================================
+   COMMAND BAR INNER
+   ========================================================= */
+
+.command-bar-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 16px;
+  border-radius: 26.5px;
+  background: rgba(12, 12, 20, 0.95);
+  backdrop-filter: blur(16px);
+}
+
+/* =========================================================
+   TEXTAREA
+   ========================================================= */
+
+.command-textarea {
+  width: 100%;
+  max-height: 96px;
+  min-height: 24px;
+  resize: none;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: #f4f4f5;
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 24px;
+  box-sizing: border-box;
+}
+
+.command-textarea::placeholder {
+  color: #71717a;
+}
+
+/* =========================================================
+   TRANSLATE STATUS
+   ========================================================= */
+
+.translate-status {
+  display: flex;
+  align-items: center;
+  align-self: flex-start;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(16, 185, 129, 0.1);
+  color: #6ee7b7;
+  font-size: 10px;
+}
+
+/* =========================================================
+   BOTTOM ROW
+   ========================================================= */
+
+.command-bottom-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 2px;
+}
+
+.command-left-actions,
+.command-right-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* =========================================================
+   PROMPTS BUTTON
+   ========================================================= */
+
+.prompts-button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.04);
+  color: #a1a1aa;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    background 180ms ease,
+    color 180ms ease;
+}
+
+.prompts-button:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #e4e4e7;
+}
+
+.prompts-button-active {
+  background: rgba(255, 255, 255, 0.1);
+  color: #f4f4f5;
+}
+
+.prompts-icon-active {
+  color: #fcd34d;
+}
+
+/* =========================================================
+   ICON BUTTON
+   ========================================================= */
+
+.icon-action-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: #a1a1aa;
+  cursor: pointer;
+  transition:
+    background 180ms ease,
+    color 180ms ease;
+}
+
+.icon-action-button:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #e4e4e7;
+}
+
+/* =========================================================
+   MIC CONTROL
+   ========================================================= */
+
+.mic-control {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.mic-icon {
+  color: #a1a1aa;
+}
+
+.mic-icon-active {
+  color: #a5b4fc;
+}
+
+.mic-label {
+  color: #71717a;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.mic-label-active {
+  color: #f4f4f5;
+}
+
+/* =========================================================
+   MIC SWITCH
+   ========================================================= */
+
+.mic-switch {
+  position: relative;
+  width: 28px;
+  height: 16px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.15);
+  cursor: pointer;
+  transition: background 180ms ease;
+}
+
+.mic-switch-active {
+  background: #6366f1;
+}
+
+.mic-switch-knob {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: white;
+  transition: transform 180ms ease;
+}
+
+.mic-switch-knob-active {
+  transform: translateX(12px);
+}
+
+/* =========================================================
+   SEND BUTTON
+   ========================================================= */
+
+.send-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  cursor: pointer;
+  transition:
+    transform 200ms ease,
+    opacity 200ms ease,
+    background 200ms ease,
+    box-shadow 200ms ease;
+}
+
+.send-button-active {
+  background: linear-gradient(
+    135deg,
+    #6366f1,
+    #8b5cf6
+  );
+  opacity: 1;
+  transform: scale(1);
+  box-shadow:
+    0 0 12px rgba(99, 102, 241, 0.5),
+    0 0 28px rgba(99, 102, 241, 0.25);
+}
+
+.send-button-active:hover {
+  transform: scale(1.05);
+}
+
+.send-button-disabled {
+  background: rgba(255, 255, 255, 0.1);
+  opacity: 0.6;
+  transform: scale(0.95);
+  cursor: default;
+}
+
+.send-button-sending {
+  transform: scale(0.9);
+}
+
+.send-icon {
+  color: white;
+}
+
+/* =========================================================
+   LISTENING
+   ========================================================= */
+
+.listening-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 8px;
+  color: #fff;
+  font-size: 11px;
+}
+
+.wave-container {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.wave-bar {
+  display: block;
+  width: 2px;
+  border-radius: 999px;
+  background: #818cf8;
+  animation: wave 700ms ease-in-out infinite alternate;
+}
+
+.close-listening {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 4px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #71717a;
+  cursor: pointer;
+}
+
+.close-listening:hover {
+  color: #d4d4d8;
+}
+
+/* =========================================================
+   ANIMATIONS
+   ========================================================= */
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeUpFast {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes wave {
+  from {
+    transform: scaleY(0.5);
+  }
+
+  to {
+    transform: scaleY(2);
+  }
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 640px) {
+  .ai-command-page {
+    padding: 24px 14px;
+  }
+
+  .action-chip-label {
+    display: none;
+  }
+
+  .quick-actions {
+    gap: 2px;
+  }
+
+  .action-chip {
+    padding: 7px 9px;
+  }
+
+  .command-bar-inner {
+    padding: 11px 13px;
+  }
+
+  .mic-label {
+    display: none;
+  }
+
+  .mic-control {
+    padding: 6px 7px;
+  }
+}
+
+/*input*/
+.tib-wrapper {
+  position: fixed;
+
+  left: 50%;
+  bottom: 20px;
+
+  transform: translateX(-50%);
+
+  width: min(600px, 85%);
+
+  z-index: 50;
+
+  box-sizing: border-box;
+}
+
+
+/* =========================================================
+   CENTER POSITION
+   ========================================================= */
+
+.tib-wrapper.tib-centered {
+  top: 50%;
+  bottom: auto;
+
+  transform: translate(-50%, -50%);
+}
+
+
+/* =========================================================
+   BOTTOM POSITION
+   ========================================================= */
+
+.tib-wrapper.tib-bottom {
+  top: auto;
+  bottom: 20px;
+
+  transform: translateX(-50%);
+}
+
+
+/* =========================================================
+   GLOW BORDER
+   ========================================================= */
+
+.tib-glow-border {
+  width: 100%;
+  padding: 1px;
+
+  box-sizing: border-box;
+
+  border-radius: 26px;
+
+  background: linear-gradient(
+    110deg,
+    rgba(255, 80, 80, 0.7),
+    rgba(0, 255, 80, 0.7),
+    rgba(80, 120, 255, 0.7),
+    rgba(255, 80, 80, 0.7)
+  );
+
+  background-size: 300% 300%;
+
+  animation: tib-border-flow 5s linear infinite;
+
+  box-shadow:
+    0 0 30px rgba(0, 0, 0, 0.45),
+    0 0 80px rgba(0, 255, 120, 0.05);
+}
+
+
+/* =========================================================
+   ACTUAL BAR
+   ========================================================= */
+
+.tib-bar {
+  width: 100%;
+  min-height: 75px;
+
+  box-sizing: border-box;
+  bottom: 20px;
+  left: 50%;
+  width:min(600px,98.5%);
+  margin-left: 3.5px;
+  align-self: center;
+  z-index:50;
+  backdrop-filter:blur(10px);
+
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+
+  padding: 12px 14px;
+
+  border-radius: 25px;
+
+  background: var(--wablingkibla, #010101);
+
+  backdrop-filter: blur(10px);
+}
+
+
+/* =========================================================
+   TOP ROW
+   ========================================================= */
+
+.tib-top-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  width: 100%;
+}
+
+.tib-placeholder {
+  color: #858589;
+
+  font-size: 18px;
+  font-weight: 400;
+
+  line-height: 1.2;
+}
+
+
+/* =========================================================
+   BOTTOM ROW
+   ========================================================= */
+
+.tib-bottom-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  width: 100%;
+}
+
+.tib-left-controls,
+.tib-right-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+
+/* =========================================================
+   ICON BUTTONS
+   ========================================================= */
+
+.tib-icon-btn {
+  width: 34px;
+  height: 34px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0;
+
+  border: none;
+  border-radius: 50%;
+
+  background: transparent;
+
+  color: #a5a5aa;
+
+  cursor: pointer;
+
+  transition:
+    background 180ms ease,
+    color 180ms ease,
+    transform 180ms ease;
+}
+
+.tib-icon-btn:hover {
+  background: rgba(255, 255, 255, 0.07);
+  color: #ffffff;
+}
+
+.tib-icon-btn:active {
+  transform: scale(0.92);
+}
+
+
+/* =========================================================
+   EXPAND
+   ========================================================= */
+
+.tib-expand {
+  color: #77777c;
+}
+
+
+/* =========================================================
+   PLUS
+   ========================================================= */
+
+.tib-plus {
+  color: #aaaab0;
+}
+
+
+/* =========================================================
+   AGENT PILL
+   ========================================================= */
+
+.tib-mode-pill {
+  height: 38px;
+
+  padding: 0 20px;
+
+  border: none;
+  border-radius: 999px;
+
+  background: #f5f5f3;
+
+  color: #222222;
+
+  font-size: 16px;
+  font-weight: 400;
+
+  cursor: pointer;
+
+  transition:
+    transform 180ms ease,
+    background 180ms ease;
+}
+
+.tib-mode-pill:hover {
+  background: #ffffff;
+}
+
+.tib-mode-pill:active {
+  transform: scale(0.96);
+}
+
+
+/* =========================================================
+   STOP BUTTON
+   ========================================================= */
+
+.tib-stop-btn {
+  width: 34px;
+  height: 34px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0;
+
+  border: none;
+  border-radius: 50%;
+
+  background: #f5f5f3;
+
+  cursor: pointer;
+
+  transition:
+    transform 180ms ease,
+    background 180ms ease;
+}
+
+.tib-stop-btn:hover {
+  background: #ffffff;
+}
+
+.tib-stop-btn:active {
+  transform: scale(0.9);
+}
+
+
+/* =========================================================
+   MOVING GLOW
+   ========================================================= */
+
+@keyframes tib-border-flow {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 600px) {
+  .tib-wrapper {
+    width: 85%;
+  }
+
+  .tib-placeholder {
+    font-size: 16px;
+  }
+
+  .tib-mode-pill {
+    padding: 0 16px;
+    font-size: 14px;
+  }
+
+  .tib-right-controls {
+    gap: 2px;
+  }
+}
