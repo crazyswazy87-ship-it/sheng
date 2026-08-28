@@ -350,6 +350,11 @@ body{
   line-height: 1;
 }
 
+.staggered-menu-trigger {
+  position: relative;
+  z-index: 1000;
+}
+
 .sm-toggle-line {
   display: block;
   height: 1em;
@@ -650,6 +655,38 @@ body{
   width: 100%;
   background-color: transparent;
   height: 90vh;
+}
+
+
+
+.top-navigation {
+  position: absolute;
+
+  top: 0;
+  right: 0;
+
+  width: 100%;
+
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+
+  transform: translateY(-20px);
+
+  transition:
+    opacity 0.35s ease,
+    transform 0.45s cubic-bezier(.22, 1, .36, 1),
+    visibility 0.35s;
+
+  z-index: 900;
+}
+
+.top-navigation-open {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+
+  transform: translateY(0);
 }
 
 /*maasai*/

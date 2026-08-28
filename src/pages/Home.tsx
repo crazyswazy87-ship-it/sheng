@@ -28,6 +28,7 @@ import Aurora from "../components/Aurora";
 import Strands from "../components/Strands";
 import Chat from "../components/shared/Chat";
 import Logotu from "../../public/assets/images/sheng-trs.png";
+import Logo from "../../public/assets/images/sheng-trs.png";
 import { useSearch } from "../hooks/useSearch";
 import ShinyText from "../components/ShinyText";
 import Shuffle from "../components/Shuffle";
@@ -37,6 +38,7 @@ import {
   subscribeToShengDrops,
   createShengSuggestion,
 } from "../appwrite/api";
+import StaggeredMenu from "../components/StaggeredMenu";
 
 
 const MAX_REVEAL = 230;
@@ -100,6 +102,8 @@ const Home = () => {
 
   const [reveal, setReveal] = useState(0);
   const [dragging, setDragging] = useState(false);
+
+  const [navOpen, setNavOpen] = useState(false);
 
   const startY = useRef(0);
   const startReveal = useRef(0);
@@ -590,6 +594,7 @@ useEffect(() => {
     { id: "greetings", icon: "👋", label: "Greetings" },
     { id: "compliments", icon: "🌟", label: "Compliments" },
   ];
+
 
   const pauseCarousel = () => {
   setCarouselPaused(true);
@@ -1509,7 +1514,7 @@ useEffect(() => {
         }}
       >
 
-        {/* Drag handle */}
+        {/* Drag handle
         <div
           className="quick-settings-drag-handle"
           onPointerDown={onPointerDown}
@@ -1525,21 +1530,7 @@ useEffect(() => {
         >
           <div className="quick-settings-grip" />
         </div>
-
-        <button
-          className="quick-settings-toggle"
-          onClick={toggleQuickSettings}
-          aria-label="Toggle quick settings"
-        >
-          <ChevronDown
-            size={16}
-            className={
-              reveal > 0
-                ? "quick-settings-chevron-open"
-                : ""
-            }
-          />
-        </button>
+         */}
 
 
         {/* ===================================================
@@ -1561,30 +1552,26 @@ useEffect(() => {
               speed={1}
             />
 
-            {/** 
-            <div className="topbar">
-              <StaggeredMenu
-                position="right"
-                items={menuItems}
-                socialItems={socialItems}
-                displaySocials
-                displayItemNumbering={false}
-                menuButtonColor="#ffffff"
-                openMenuButtonColor="#ffffff"
-                changeMenuColorOnOpen
-                colors={[
-                  "#7cff67",
-                  "#ff2727",
-                ]}
-                logoUrl={Logo}
-                accentColor="#06bb28"
-              />
-            </div>
+            
+         <div className="topbar">
+            <StaggeredMenu
+              position="right"
+              logoUrl={Logo}
+              menuButtonColor="#fff"
+              openMenuButtonColor="#fff"
+              accentColor="#06bb28"
+              changeMenuColorOnOpen
+              colors={[
+                "#7cff67",
+                "#ff2727",
+              ]}
+              onClick={toggleQuickSettings}
+            />
+          </div>
 
-            */}
+            
 
-            {/*hhshshhshs*/}
-
+            
 
             {messages.length === 0 ? (
               <div className="landing">
