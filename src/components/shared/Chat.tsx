@@ -1,6 +1,5 @@
 import ClickSpark from "../ClickSpark";
 import shengai from "../../../public/assets/icons/botsheng.png";
-import save from "../../../public/assets/icons/shared.svg";
 import ShinyText from "../ShinyText";
 import Shuffle from "../Shuffle";
 import { useEffect, useRef, useState } from "react";

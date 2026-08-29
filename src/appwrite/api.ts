@@ -33,10 +33,10 @@ export const searchWord = async (search: string) => {
 export const getWordsByCategory = async (category: string) => {
   const queries =
     category === "all"
-      ? [Query.limit(500)]
+      ? [Query.limit(1000)]
       : [
           Query.equal("category", category),
-          Query.limit(500),
+          Query.limit(1000),
         ];
 
   const response = await databases.listDocuments(
@@ -47,6 +47,31 @@ export const getWordsByCategory = async (category: string) => {
 
   return response.documents;
 };
+
+
+export const getWordByName = async (word: string) => {
+const query = word.trim().toLowerCase();
+
+if (!query) {
+return null;
+}
+
+const response = await databases.listDocuments(
+DATABASE_ID,
+SHENG_COLLECTION_ID,
+[
+Query.or([
+Query.equal("word", query),
+Query.contains("aliases", [query]),
+]),
+Query.limit(1),
+]
+);
+
+return response.documents[0] ?? null;
+};
+
+
 
 export const subscribeToShengDrops = async (email: string) => {
   return await databases.createDocument(

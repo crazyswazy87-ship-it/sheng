@@ -9,7 +9,6 @@ import {
 
 import {
   BookPlus,
-  ChevronDown,
   ScrollText,
 } from "lucide-react";
 
@@ -39,6 +38,7 @@ import {
   createShengSuggestion,
 } from "../appwrite/api";
 import StaggeredMenu from "../components/StaggeredMenu";
+import SEO from "../components/SEO";
 
 
 const MAX_REVEAL = 230;
@@ -610,6 +610,12 @@ useEffect(() => {
 };
 
   return (
+    <>
+    <SEO
+      title="Sheng.buzz — Kenya's AI-Powered Sheng Dictionary"
+      description="Sheng.buzz is an AI-powered Sheng dictionary and language companion for understanding Kenya's evolving Sheng, slang, meanings, translations and expressions."
+      path="/"
+    />
     <div className="quick-settings-page">
 
       {showHistory && (
@@ -1774,6 +1780,7 @@ useEffect(() => {
 
 
     </div>
+    </>
   );
 };
 
