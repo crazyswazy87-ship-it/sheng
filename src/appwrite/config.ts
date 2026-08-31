@@ -4,7 +4,7 @@ const client = new Client();
 
 client
   .setEndpoint('https://sgp.cloud.appwrite.io/v1')
-  .setProject(import.meta.env.VITE_APPWRITE_PROJECT_ID);
+  .setProject('695fa78500123148c6ff');
 
 export const databases = new Databases(client);
 
