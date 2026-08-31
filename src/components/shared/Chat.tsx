@@ -11,14 +11,16 @@ type ChatMessage = {
   role: "user" | "assistant";
   content: any;
   loading?: boolean;
+  searchedWord?: string;
 };
 
 type ChatProps = {
   messages: ChatMessage[];
   search: (word: string) => void;
+  deepSearch?: (word: string) => void;
 };
 
-const Chat = ({ messages, search }: ChatProps) => {
+const Chat = ({ messages, search, deepSearch }: ChatProps) => {
   const bottomRef = useRef<HTMLDivElement>(null);
 
   const [expanded, setExpanded] = useState<Record<number, {
@@ -31,6 +33,33 @@ const Chat = ({ messages, search }: ChatProps) => {
       behavior: "smooth",
     });
   }, [messages]);
+
+  useEffect(() => {
+  const latestMessage = messages[messages.length - 1];
+
+  // Only act when the latest message is a completed AI response
+  if (
+    !latestMessage ||
+    latestMessage.role !== "assistant" ||
+    latestMessage.loading ||
+    !latestMessage.content
+  ) {
+    return;
+  }
+
+  const timer = setTimeout(() => {
+    setExpanded((prev) => ({
+      ...prev,
+      [latestMessage.id]: {
+        english: true,
+        swahili: true,
+      },
+    }));
+  }, 1500);
+
+  return () => clearTimeout(timer);
+}, [messages]);
+  
 
   return (
     <div className="maasai">
@@ -305,15 +334,30 @@ const Chat = ({ messages, search }: ChatProps) => {
                       <div className="trns">
 
                         <h3 className="no-rada">
-                           No street record found!
+                          No street record found!
                         </h3>
 
                         <p className="no-rada-text">
-                          Looks like you've invented a new Sheng word
+                          Looks like you've invented a new Sheng word.
                         </p>
 
+                        <button
+                          className="deep-search-btn"
+                          onClick={() => {
+                            if (deepSearch && message.searchedWord) {
+                              deepSearch(message.searchedWord);
+                            }
+                          }}
+                        >
+                          <span className="deep-search-icon">⌁</span>
 
-                        
+                          <span className="deep-search-copy">
+                            <strong>Deep Search</strong>
+                            <small>Dig deeper into the streets</small>
+                          </span>
+
+                          <span className="deep-search-arrow">→</span>
+                        </button>
 
                       </div>
 

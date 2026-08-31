@@ -18,12 +18,8 @@ export interface StaggeredMenuProps {
 
   changeMenuColorOnOpen?: boolean;
 
-  /*
-   * Your existing function:
-   *
-   * onClick={toggleQuickSettings}
-   */
   onClick?: () => void;
+  onLogoClick?: () => void;
 }
 
 const StaggeredMenu: React.FC<StaggeredMenuProps> = ({
@@ -39,6 +35,7 @@ const StaggeredMenu: React.FC<StaggeredMenuProps> = ({
   changeMenuColorOnOpen = true,
 
   onClick,
+  onLogoClick,
 }) => {
   const [open, setOpen] = useState(false);
 
@@ -382,10 +379,11 @@ const StaggeredMenu: React.FC<StaggeredMenuProps> = ({
           STAGGERED COLOR LAYERS
       ===================================================== */}
 
-      <div
+     <div
         ref={layersRef}
         className="sm-prelayers"
         aria-hidden="true"
+        style={{ pointerEvents: "none" }}
       >
         {colors
           .slice(0, 3)
@@ -404,8 +402,14 @@ const StaggeredMenu: React.FC<StaggeredMenuProps> = ({
           HEADER
       ===================================================== */}
 
-      <header className="staggered-menu-header">
-        {logoUrl && (
+      <header
+        className="staggered-menu-header"
+        style={{
+          position: "relative",
+          zIndex: 1000,
+        }}
+      >
+       {logoUrl && (
           <div className="sm-logo">
             <img
               src={logoUrl}
@@ -414,11 +418,7 @@ const StaggeredMenu: React.FC<StaggeredMenuProps> = ({
               draggable={false}
               onClick={(e) => {
                 e.stopPropagation();
-
-                window.scrollTo({
-                  top: 0,
-                  behavior: "smooth",
-                });
+                onLogoClick?.();
               }}
             />
           </div>
@@ -432,6 +432,11 @@ const StaggeredMenu: React.FC<StaggeredMenuProps> = ({
           ref={buttonRef}
           type="button"
           className="sm-toggle"
+          style={{
+          position: "relative",
+          zIndex: 1001,
+          pointerEvents: "auto",
+        }}
           onClick={handleClick}
           aria-label={
             open

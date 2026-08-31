@@ -12,6 +12,12 @@ import {
   ScrollText,
 } from "lucide-react";
 
+import {
+  FaInstagram,
+  FaTwitter,
+  FaWhatsapp,
+} from "react-icons/fa";
+
 import bseven from "../../public/assets/images/bseven-white.png"
 
 import {
@@ -42,7 +48,7 @@ import SEO from "../components/SEO";
 
 
 const MAX_REVEAL = 230;
-const OPEN_THRESHOLD = 0.38;
+
 
 const clamp = (
   value: number,
@@ -101,77 +107,9 @@ const Home = () => {
      ========================================================= */
 
   const [reveal, setReveal] = useState(0);
-  const [dragging, setDragging] = useState(false);
-
-  const [navOpen, setNavOpen] = useState(false);
-
-  const startY = useRef(0);
-  const startReveal = useRef(0);
-  const pointerId = useRef<number | null>(null);
 
   const searchInputRef = useRef<HTMLInputElement>(null);
 
-  const onPointerDown = useCallback(
-    (e: React.PointerEvent<HTMLDivElement>) => {
-      pointerId.current = e.pointerId;
-      startY.current = e.clientY;
-      startReveal.current = reveal;
-
-      setDragging(true);
-
-      e.currentTarget.setPointerCapture(e.pointerId);
-    },
-    [reveal]
-  );
-
-  const onPointerMove = useCallback(
-    (e: React.PointerEvent<HTMLDivElement>) => {
-      if (
-        !dragging ||
-        e.pointerId !== pointerId.current
-      ) {
-        return;
-      }
-
-      const delta = e.clientY - startY.current;
-
-      setReveal(
-        clamp(
-          startReveal.current + delta,
-          0,
-          MAX_REVEAL
-        )
-      );
-    },
-    [dragging]
-  );
-
-  const endDrag = useCallback(
-    (e: React.PointerEvent<HTMLDivElement>) => {
-      if (!dragging) return;
-
-      setDragging(false);
-
-      const progress = reveal / MAX_REVEAL;
-
-      setReveal(
-        progress > OPEN_THRESHOLD
-          ? MAX_REVEAL
-          : 0
-      );
-
-      if (
-        e.currentTarget.hasPointerCapture(
-          e.pointerId
-        )
-      ) {
-        e.currentTarget.releasePointerCapture(
-          e.pointerId
-        );
-      }
-    },
-    [dragging, reveal]
-  );
 
   const toggleQuickSettings = () => {
     setReveal((current) =>
@@ -260,6 +198,16 @@ const Home = () => {
       localStorage.removeItem("shengai_history");
     }
   }, []);
+
+  const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+      const timer = setTimeout(() => {
+        setIsLoading(false);
+      }, 7000);
+
+      return () => clearTimeout(timer);
+    }, []);
 
 
   /* =========================================================
@@ -423,12 +371,13 @@ useEffect(() => {
     role: "user",
     content: currentQuery,
   };
-
+  
   const loadingMessage: ChatMessage = {
     id: aiId,
     role: "assistant",
     content: null,
     loading: true,
+    searchedWord: currentQuery,
   };
 
   const updatedMessages = [
@@ -455,6 +404,7 @@ useEffect(() => {
         role: "assistant",
         content: response,
         loading: false,
+        searchedWord: currentQuery,
       },
     ];
 
@@ -480,6 +430,7 @@ useEffect(() => {
         role: "assistant",
         content: null,
         loading: false,
+        searchedWord: currentQuery,
       },
     ];
 
@@ -497,6 +448,68 @@ useEffect(() => {
   }
 
   setQuery("");
+};
+
+  const handleDeepSearch = async (word: string) => {
+  const cleanWord = word.trim();
+
+  if (!cleanWord) return;
+
+  try {
+    const response = await search(cleanWord, true);
+
+    // -----------------------------------------
+    // DEEP SEARCH FOUND SOMETHING
+    // -----------------------------------------
+
+    if (response) {
+      const aiId = Date.now();
+
+      const deepMessage: ChatMessage = {
+        id: aiId,
+        role: "assistant",
+        content: response,
+        loading: false,
+        searchedWord: cleanWord,
+      };
+
+      setMessages((prev) => [
+        ...prev,
+        deepMessage,
+      ]);
+
+      return;
+    }
+
+    // -----------------------------------------
+    // NOTHING FOUND
+    // OPEN SHENTEZO
+    // -----------------------------------------
+
+    setSuggestionWord(cleanWord);
+    setSuggestionMeaning("");
+    setSuggestionExample("");
+    setSuggestionMessage("");
+
+    setShowSuggestSheng(true);
+
+  } catch (error) {
+
+    console.error(
+      "Deep search failed:",
+      error
+    );
+
+    // If deep search itself fails,
+    // still allow the user to suggest it.
+
+    setSuggestionWord(cleanWord);
+    setSuggestionMeaning("");
+    setSuggestionExample("");
+    setSuggestionMessage("");
+
+    setShowSuggestSheng(true);
+  }
 };
 
   const openHistory = () => {
@@ -616,6 +629,41 @@ useEffect(() => {
       description="Sheng.buzz is an AI-powered Sheng dictionary and language companion for understanding Kenya's evolving Sheng, slang, meanings, translations and expressions."
       path="/"
     />
+
+      {isLoading && (
+      <div className="sheng-loader">
+        <div className="sheng-loader-content">
+
+          <img
+            src={Logotu}
+            alt="ShengAI"
+            className="sheng-loader-logo"
+          />
+
+          <div className="sheng-loader-text">
+             <span className="comp-name">
+              <span className="d1fnn">S</span>
+              <span className="d2fnn">H</span>
+              <span className="d3fnn">ENG</span>
+           
+            </span>
+
+            <div className="top-defn">
+              <span className="d1fn">Swahili</span>
+              <hr className="hr"/>
+              <span className="d2fn">Hoodslang</span>
+              <hr className="hr"/>
+              <span className="d3fn">ENGlish</span>
+            </div>
+          </div>
+
+          <div className="sheng-loader-bar">
+            <div className="sheng-loader-progress" />
+          </div>
+
+        </div>
+      </div>
+    )}
     <div className="quick-settings-page">
 
       {showHistory && (
@@ -1247,7 +1295,7 @@ useEffect(() => {
               setSuggestionExample("");
 
               setSuggestionMessage(
-                "Safi! Your Sheng word has been submitted for review."
+                "Rada safi! The streets just got a little smarter ! "
               );
 
             } catch (error) {
@@ -1348,7 +1396,7 @@ useEffect(() => {
           >
             {submittingSuggestion
               ? "Submitting..."
-              : "Suggest Word"}
+              : "Add to the Streets"}
           </button>
 
 
@@ -1483,11 +1531,44 @@ useEffect(() => {
           <ShinyText
             text="A Block Seven Creation"
             className="ans"
-            speed={2.9}
+            speed={2}
             shineColor="#fff"
           />
 
+
+
         </p>
+
+        <div className="social-links">
+
+          <a
+            href="https://www.instagram.com/block.seven_?utm_source=ig_web_button_share_sheet&igsi=ZDNlZDc0MzIxNw=="
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Instagram"
+          >
+            <FaInstagram size={20} />
+          </a>
+
+          <a
+            href="https://x.com/memflixcto?utm_source=chatgpt.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Twitter"
+          >
+            <FaTwitter size={20} />
+          </a>
+
+          <a
+            href="https://wa.me/254703983973?utm_source=chatgpt.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="WhatsApp"
+          >
+            <FaWhatsapp size={20} />
+          </a>
+
+        </div>
         
       </div>
 
@@ -1497,11 +1578,7 @@ useEffect(() => {
           ===================================================== */}
 
       <div
-        className={`quick-settings-home ${
-          dragging
-            ? "quick-settings-home-dragging"
-            : ""
-        }`}
+        className={`quick-settings-home `}
         style={{
           transform: `
             translateY(${reveal}px)
@@ -1560,19 +1637,28 @@ useEffect(() => {
 
             
          <div className="topbar">
-            <StaggeredMenu
-              position="right"
-              logoUrl={Logo}
-              menuButtonColor="#fff"
-              openMenuButtonColor="#fff"
-              accentColor="#06bb28"
-              changeMenuColorOnOpen
-              colors={[
-                "#7cff67",
-                "#ff2727",
-              ]}
-              onClick={toggleQuickSettings}
-            />
+           <StaggeredMenu 
+            position="right" 
+            logoUrl={Logo} 
+            menuButtonColor="#fff" 
+            openMenuButtonColor="#fff" 
+            accentColor="#06bb28" 
+            changeMenuColorOnOpen
+            colors={[ 
+              "#7cff67", 
+              "#ff2727", 
+            ]}
+
+            // MENU BUTTON → QUICK SETTINGS
+            onClick={toggleQuickSettings}
+
+            // LOGO → SUBSCRIBE
+            onLogoClick={() => { 
+              setReveal(0);
+              setShowSubscribe(true);
+              setSubscribeMessage("");
+            }}
+          />
           </div>
 
             
@@ -1673,11 +1759,12 @@ useEffect(() => {
                 </div>
 
             ) : (
-              <Chat
-                messages={messages}
+              <Chat 
+                messages={messages} 
                 search={search}
+                deepSearch={handleDeepSearch}
               />
-            )}
+              )}
 
 
             <div
