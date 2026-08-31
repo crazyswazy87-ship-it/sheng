@@ -55,7 +55,7 @@ const Chat = ({ messages, search, deepSearch }: ChatProps) => {
         swahili: true,
       },
     }));
-  }, 1500);
+  }, 1501);
 
   return () => clearTimeout(timer);
 }, [messages]);
