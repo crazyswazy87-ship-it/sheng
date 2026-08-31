@@ -154,7 +154,7 @@ const Chat = ({ messages, search, deepSearch }: ChatProps) => {
                           >
 
                             <span className="eng">
-                              English
+                              
                             </span>
 
                             <GoChevronDown
