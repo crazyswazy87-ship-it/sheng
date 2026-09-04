@@ -1,9 +1,15 @@
-import CinematicHero from "../components/CinematicHero"
-import vida from "../../public/assets/videos/skyfall.mp4"
+//import CinematicHero from "../components/CinematicHero"
+//import vida from "../../public/assets/videos/skyfall.mp4"
 
 const About = () => {
   return (
-    <CinematicHero  videoSrc={vida} />
+   <div className="example">
+      <div className="st1div">this is the first div    as you can see</div>
+      <div className="st2div">this is the first div    as you can see</div>
+
+      <div className="st1div">this is the first div    as you can see this is the first div    as you can see</div>
+      <div className="st2div">this is the first div    as you can see this is the first div    as you can see</div>
+  </div>
   )
 }
 

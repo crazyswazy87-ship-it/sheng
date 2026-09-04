@@ -4184,3 +4184,34 @@ color: rgb(0, 255, 0);;
     color: rgb(12, 193, 12);
     
   }
+
+
+
+/*example*/
+.example
+{
+  width: 100%;
+  display: grid;
+  grid-template-columns: 100px 1fr;
+  grid-template-rows: 100px 100px;
+  
+  gap: 10px;
+ 
+}
+
+.st1div
+{
+  background-color: green;
+}
+
+.st2div
+{
+  background-color: purple;
+}
+
+
+.st2div
+{
+  text-wrap: nowrap;
+  padding: 20px;
+}
